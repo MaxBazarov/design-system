@@ -1,0 +1,26 @@
+{
+  "name": "Design System",
+  "description": "Apply LESS styles to Sketch widgets",
+  "author" : "Maxim Bazarov",
+  "homepage": "",  
+  "identifier" : "com.cloudblue.sketch.ds",
+  "appcast": "https://raw.githubusercontent.com/MaxBazarov/design-system/master/appcast.xml",
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "version" : "0.0.1",
+  "icon": "icon.png",
+  "commands" : [   
+    {
+      "script" : "cmd-apply-less.js",
+      "handler" : "onRun",
+      "name" : "Apply LESS file",
+      "identifier" : "cmApplyLess"
+    }
+  ],
+  "menu": {
+    "title": "📦 Design System",
+    "items": [
+      "cmApplyLess"
+    ]
+  }
+}
