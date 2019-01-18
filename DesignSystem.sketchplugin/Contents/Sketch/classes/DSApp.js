@@ -131,6 +131,9 @@ class DSApp {
             // work with token
             var token = tokens[objPath]
             for(var style of Object.keys(token)){
+                 // skip comments
+                if(style.indexOf("__")==0) continue
+
                 var lessVarName = token[style]
                 
                 this.log('lessVarName='+lessVarName)

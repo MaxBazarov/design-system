@@ -9,6 +9,7 @@ function loadLessVars(fileName){
     var data = fs.readFileSync(fileName, 'utf8');
 
     less.parse(data, function (err, root, imports, options) {
+        console.log(err)
         var evalEnv = new less.contexts.Eval(options);
         var evaldRoot = root.eval(evalEnv);
         var ruleset = evaldRoot.rules;
