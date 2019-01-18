@@ -123,6 +123,12 @@ class DSApp {
         var tokens = JSON.parse(tokensStr)
 
         for(var objPath of Object.keys(tokens)){
+            // skip comments
+            if(objPath.indexOf("__")==0) continue
+
+            log('_applyLess: path to object: '+objPath)
+
+            // work with token
             var token = tokens[objPath]
             for(var style of Object.keys(token)){
                 var lessVarName = token[style]
@@ -192,16 +198,21 @@ class DSApp {
     }
 
     _applyLessVar(lessName, objPath,styleType) {
-        if('fill-color'==styleType) return this._applyFillColor(lessName, objPath)
+        var obj = this._getObjByPath(objPath)
+        if( undefined==obj)  return false
+
+        // apply style
+        if('fill-color'==styleType) return this._applyFillColor(lessName, objPath, obj)
+        else if('text-color'==styleType) return this._applyTextColor(lessName, objPath, obj)
+        else if('border-color'==styleType) return this._applyBorderColor(lessName, objPath, obj)
+
+        return true
     }
 
-    _applyFillColor(lessName, objPath) {
+    _applyFillColor(lessName, objPath, obj) {
         var color = this._getLessVar(lessName)
         if(undefined == color) return false    
 
-        var obj = this._getObjByPath(objPath)
-        if( undefined==obj)  return false
-        
         let fills = obj.slayer.style.fills
         if(undefined==fills) return app.logError('No fills for '+objPath)
     
@@ -209,31 +220,109 @@ class DSApp {
         if(0==fills.length) return app.logError('No enabled fills for '+objPath)
 
         fills[0].color = color
+
+
+        // propagate new shared style to all
+        obj.slayer.sharedStyle.style = obj.slayer.style
+        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+
+        return true
+    }
+
+
+    _applyBorderColor(lessName, objPath, obj) {
+        var color = this._getLessVar(lessName)
+        if(undefined == color) return false    
+
+        var borders = obj.slayer.style.borders
+        if(0==borders.length){
+            return this.logError('No border for '+objPath)
+        }
+        borders[0].color = color
+
+        // propagate new shared style to all
+        obj.slayer.sharedStyle.style = obj.slayer.style
+        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+
+        return true
+    }
+
+    _applyTextColor(lessName, objPath,obj) {
+        var color = this._getLessVar(lessName)
+        if(undefined == color) return false    
+
+        var immutableColor = MSImmutableColor.colorWithSVGString_(color)
+        var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
+
+        ////
+
+        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
+        const textAttribs = orgTextStyle.attributes()
+        
+        const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
+        const kernAttr = textAttribs.NSKern
+
+        var attributes = {
+            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),1),
+            'NSFont' : textAttribs.NSFont.copy(),
+            'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
+        };
+        if(textTransformAttribute) 
+            attributes['MSAttributedStringTextTransformAttribute'] = textTransformAttribute.copy()
+        if(kernAttr) 
+            attributes['NSKern'] = kernAttr.copy()
+
+        /////
+        var textStyle = MSTextStyle.styleWithAttributes_(attributes);
+        textStyle.verticalAlignment = orgTextStyle.verticalAlignment()
+        /////
+
+        obj.slayer.style.sketchObject.setTextStyle_(textStyle)
 
         obj.slayer.sharedStyle.style = obj.slayer.style
         obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-        //var sharedStyle = obj.slayer.sharedStyle
-        //sharedStyle.syncWithSharedStyle(obj.slayer.style)
+
+        return true
     }
 
-    _applyTextColor(lessName, objPath) {
+    _applyTextFont(lessName, objPath,obj) {
         var color = this._getLessVar(lessName)
         if(undefined == color) return false    
 
-        var obj = this._getObjByPath(objPath)
-        if( undefined==obj)  return false
+        var immutableColor = MSImmutableColor.colorWithSVGString_(color)
+        var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
+
+        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
         
-        let fills = obj.slayer.style.fills
-        if(undefined==fills) return app.logError('No fills for '+objPath)
-    
-        fills =  fills.filter(function(el){return el.enabled})
-        if(0==fills.length) return app.logError('No enabled fills for '+objPath)
+        //log(orgTextStyle.attributes())
 
-        fills[0].color = color
+        var attributes = {
+            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),1),
+            'NSFont' : orgTextStyle.attributes().NSFont.copy(),
+            'NSParagraphStyle': orgTextStyle.attributes().NSParagraphStyle.copy()
+        };
+        var style = MSStyle.alloc().init();
+        var textStyle = MSTextStyle.styleWithAttributes_(attributes);
+        //style.setTextStyle_(textStyle);
+        obj.slayer.style.sketchObject.setTextStyle_(textStyle)
 
-        var sharedStyle = obj.slayer.sharedStyle
-        obj.slayer.style.syncWithSharedStyle(sharedStyle)
+        //var textStyle =   obj.slayer.style.sketchObject.textStyle()        
+        //textStyle.attributes().MSAttributedStringColorAttribute = immutableColor
 
+        //obj.slayer.style.sketchObject.setTextStyle_(textStyle)
+        /*
+        
+
+        var colorAttributes = obj.slayer.sharedStyle.sketchObject.style().primitiveTextStyle().attributes().MSAttributedStringColorAttribute
+        colorAttributes.blue = msColor.blue()
+        colorAttributes.green = msColor.green()
+        colorAttributes.red = msColor.red()
+
+        */
+
+        //obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+
+        return true
     }
 
     _initPages() {

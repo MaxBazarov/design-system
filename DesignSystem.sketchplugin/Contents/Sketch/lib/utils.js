@@ -195,7 +195,6 @@ class Utils {
         Utils.deleteFile(targetPath)
 
         const sourcePath = app.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent(resFolder).path() + "/" + scriptName
-        log('sourcePath='+sourcePath)
 
         let error = MOPointer.alloc().init()
 
