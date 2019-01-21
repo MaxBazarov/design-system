@@ -89,6 +89,14 @@ class Utils {
         }
     }
 
+    // opacity: 0 .. 1.0(transparent)
+    static opacityToHex(opacity){
+        var i = Math.round(opacity * 100) / 100;
+        var alpha = Math.round(i * 255);
+        var hex = (alpha + 0x10000).toString(16).substr(-2).toUpperCase();
+        return hex
+    }
+
     static cloneDict(dict) {
         return Object.assign({}, dict);
     }

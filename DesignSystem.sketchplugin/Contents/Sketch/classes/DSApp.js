@@ -136,16 +136,28 @@ class DSApp {
 
             // work with token
             var token = tokens[tokenName]
-            var styleValue = ""            
+            var styleValue = undefined                       
+            
+            var opacity = token['opacity']
 
             // get info from LESS file 
-            var lessName =  token['less']            
-            if(undefined==lessName){
-                this.logError('less is undefined for '+tokenName)
+            var lessCommented = false
+            var lessName =  token['less']
+            if(undefined!=lessName){
+                if(lessName.indexOf("__")==0)
+                    lessCommented = true
+                else
+                    styleValue = this._getLessVar(lessName)            
+            }
+            if(undefined==styleValue && undefined!=token['value']){
+                styleValue = token['value']
+            }
+
+            if(undefined==styleValue){
+                if(lessCommented) continue
+                this.logError('Both "less" and "value" are undefined for '+tokenName)
                 continue
             }
-            if(lessName.indexOf("__")==0) continue // less name is commented
-            var styleValue = this._getLessVar(lessName)                        
             
             // get sketch object by path
             var sketchPaths = token['sketch']
@@ -167,9 +179,9 @@ class DSApp {
                     continue
                 }
 
-                if('fill-color'==styleType) this._applyFillColor(tokenName,sketchObj,styleValue)
-                else if('text-color'==styleType) this._applyTextColor(tokenName,sketchObj,styleValue)
-                else if('border-color'==styleType) this._applyBorderColor(tokenName,sketchObj,styleValue)
+                if('fill-color'==styleType) this._applyFillColor(tokenName,sketchObj,styleValue,opacity)
+                else if('text-color'==styleType) this._applyTextColor(tokenName,sketchObj,styleValue,opacity)
+                else if('border-color'==styleType) this._applyBorderColor(tokenName,sketchObj,styleValue,opacity)
             }
         }
         return true
@@ -236,15 +248,17 @@ class DSApp {
             return null
         }
         return lessVar
-    }
-
+    }    
  
-    _applyFillColor(tokenName, obj, color) {
+    _applyFillColor(tokenName, obj, color,opacity) {
+        if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)        
+        
         let fills = obj.slayer.style.fills
         if(undefined==fills) return app.logError('No fills for '+tokenName)
     
         fills =  fills.filter(function(el){return el.enabled})
         if(0==fills.length) return app.logError('No enabled fills for '+tokenName)
+         
 
         fills[0].color = color
 
@@ -256,13 +270,14 @@ class DSApp {
     }
 
 
-    _applyBorderColor(tokenName, obj, color){
+    _applyBorderColor(tokenName, obj, color,opacity){
+        if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
 
         var borders = obj.slayer.style.borders
         if(0==borders.length){
             return this.logError('No border for '+tokenName)
         }
-        borders[0].color = color
+        borders[0].color = color        
 
         // propagate new shared style to all
         obj.slayer.sharedStyle.style = obj.slayer.style
@@ -271,12 +286,13 @@ class DSApp {
         return true
     }
 
-    _applyTextColor(tokenName, obj, color){
+    _applyTextColor(tokenName, obj, color,opacity){
 
         var immutableColor = MSImmutableColor.colorWithSVGString_(color)
         var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
 
         ////
+        const alpha = undefined!=opacity?opacity:1
 
         var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
         const textAttribs = orgTextStyle.attributes()
@@ -285,7 +301,7 @@ class DSApp {
         const kernAttr = textAttribs.NSKern
 
         var attributes = {
-            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),1),
+            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha),
             'NSFont' : textAttribs.NSFont.copy(),
             'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
         };
