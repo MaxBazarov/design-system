@@ -212,9 +212,9 @@ class DSApp {
     }
 
     _getStyleByTokenName(tokenName){
+        if(tokenName.endsWith('-bordercolor')) return "border-color"
         if(tokenName.endsWith('-color')) return "text-color"
-        if(tokenName.endsWith('-bg')) return "fill-color"
-        if(tokenName.endsWith('-border')) return "border-color"
+        if(tokenName.endsWith('-bg')) return "fill-color"        
 
         return undefined
     }
@@ -286,6 +286,24 @@ class DSApp {
         return true
     }
 
+    _getObjTextAttributes(obj){
+        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
+        const textAttribs = orgTextStyle.attributes()
+        
+        const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
+        const kernAttr = textAttribs.NSKern
+
+        var attributes = {
+            'NSColor': textAttribs.NSColor.copy(),
+            'NSFont' : textAttribs.NSFont.copy(),
+            'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
+        };
+        if(textTransformAttribute) 
+            attributes['MSAttributedStringTextTransformAttribute'] = textTransformAttribute.copy()
+        if(kernAttr) 
+            attributes['NSKern'] = kernAttr.copy()
+    }
+
     _applyTextColor(tokenName, obj, color,opacity){
 
         var immutableColor = MSImmutableColor.colorWithSVGString_(color)
@@ -294,22 +312,9 @@ class DSApp {
         ////
         const alpha = undefined!=opacity?opacity:1
 
-        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
-        const textAttribs = orgTextStyle.attributes()
-        
-        const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
-        const kernAttr = textAttribs.NSKern
-
-        var attributes = {
-            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha),
-            'NSFont' : textAttribs.NSFont.copy(),
-            'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
-        };
-        if(textTransformAttribute) 
-            attributes['MSAttributedStringTextTransformAttribute'] = textTransformAttribute.copy()
-        if(kernAttr) 
-            attributes['NSKern'] = kernAttr.copy()
-
+        const attributes = this._getObjTextAttributes(obj)
+        attributes['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
+       
         /////
         var textStyle = MSTextStyle.styleWithAttributes_(attributes);
         textStyle.verticalAlignment = orgTextStyle.verticalAlignment()
@@ -323,46 +328,28 @@ class DSApp {
         return true
     }
 
-    _applyTextFont(lessName, objPath,obj) {
-        var color = this._getLessVar(lessName)
-        if(undefined == color) return false    
+    _applyTextTransform(tokenName, obj, color,opacity){
+        var transform = undefined
 
-        var immutableColor = MSImmutableColor.colorWithSVGString_(color)
-        var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
 
-        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
-        
-        //log(orgTextStyle.attributes())
-
-        var attributes = {
-            'NSColor': NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),1),
-            'NSFont' : orgTextStyle.attributes().NSFont.copy(),
-            'NSParagraphStyle': orgTextStyle.attributes().NSParagraphStyle.copy()
-        };
-        var style = MSStyle.alloc().init();
+        const attributes = this._getObjTextAttributes(obj)
+        attributes['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
+       
+        /////
         var textStyle = MSTextStyle.styleWithAttributes_(attributes);
-        //style.setTextStyle_(textStyle);
+        textStyle.verticalAlignment = orgTextStyle.verticalAlignment()
+        /////
+
         obj.slayer.style.sketchObject.setTextStyle_(textStyle)
 
-        //var textStyle =   obj.slayer.style.sketchObject.textStyle()        
-        //textStyle.attributes().MSAttributedStringColorAttribute = immutableColor
-
-        //obj.slayer.style.sketchObject.setTextStyle_(textStyle)
-        /*
-        
-
-        var colorAttributes = obj.slayer.sharedStyle.sketchObject.style().primitiveTextStyle().attributes().MSAttributedStringColorAttribute
-        colorAttributes.blue = msColor.blue()
-        colorAttributes.green = msColor.green()
-        colorAttributes.red = msColor.red()
-
-        */
-
-        //obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+        obj.slayer.sharedStyle.style = obj.slayer.style
+        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
 
         return true
     }
 
+
+    
     _initPages() {
         const layerCollector  = new DSLayerCollector() 
 
