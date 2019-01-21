@@ -71,6 +71,11 @@ class DSApp {
         if( !this.loadLess()) return false        
         if( !this._applyLess() ) return false
 
+        // show final message
+        if(this.errors.length>0){
+            this.UI.alert('Found errors',this.errors.join("\n\n"))
+        }
+
         return true
     }
 
@@ -134,10 +139,14 @@ class DSApp {
             var styleValue = ""            
 
             // get info from LESS file 
-            var lessName =  token['less']
-            if(lessName.indexOf("__")==0) continue // Less Variable not defined
-            var styleValue = this._getLessVar(lessName)            
-
+            var lessName =  token['less']            
+            if(undefined==lessName){
+                this.logError('less is undefined for '+tokenName)
+                continue
+            }
+            if(lessName.indexOf("__")==0) continue // less name is commented
+            var styleValue = this._getLessVar(lessName)                        
+            
             // get sketch object by path
             var sketchPaths = token['sketch']
             if(!Array.isArray(sketchPaths))
@@ -145,16 +154,25 @@ class DSApp {
 
             for(var sketchPath of sketchPaths){
                 if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
-                var sketchObj = this._getObjByPath('sketchPath')
+                var sketchObj = this._getObjByPath(sketchPath)
+                if(undefined==sketchObj){
+                    this.logError("Can not find Sketch object by path: "+sketchPath)
+                    continue
+                }
 
                 // apply style
                 var styleType = this._getStyleByTokenName(tokenName)
+                if(undefined==styleType){
+                    this.logError('Style type is unrecognized for '+tokenName)
+                    continue
+                }
 
-                if('fill-color'==styleType) return this._applyFillColor(tokenName,sketchObj,styleValue)
-                else if('text-color'==styleType) return this._applyTextColor(tokenName,sketchObj,styleValue)
-                else if('border-color'==styleType) return this._applyBorderColor(tokenName,sketchObj,styleValue)
+                if('fill-color'==styleType) this._applyFillColor(tokenName,sketchObj,styleValue)
+                else if('text-color'==styleType) this._applyTextColor(tokenName,sketchObj,styleValue)
+                else if('border-color'==styleType) this._applyBorderColor(tokenName,sketchObj,styleValue)
             }
         }
+        return true
     }
 
     loadLess() {
@@ -182,9 +200,9 @@ class DSApp {
     }
 
     _getStyleByTokenName(tokenName){
-        if(tokenName.endsWith('_color')) return "text-color"
-        if(tokenName.endsWith('_bg')) return "fill-color"
-        if(tokenName.endsWith('_border')) return "border-color"
+        if(tokenName.endsWith('-color')) return "text-color"
+        if(tokenName.endsWith('-bg')) return "fill-color"
+        if(tokenName.endsWith('-border')) return "border-color"
 
         return undefined
     }
@@ -201,7 +219,7 @@ class DSApp {
 
         if (undefined == obj) {
             this.UI.alert("Alert", "Can not find Sketch layer by path '" + objPath + "'")
-            return null
+            return undefined
         }
 
         return obj
