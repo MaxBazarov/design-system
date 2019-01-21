@@ -118,35 +118,43 @@ class DSApp {
         return true
     }
 
+
     _applyLess() {
         var tokensStr = Utils.readFile(this.pathToTokens)
         var tokens = JSON.parse(tokensStr)
 
-        for(var objPath of Object.keys(tokens)){
+        for(var tokenName of Object.keys(tokens)){
             // skip comments
-            if(objPath.indexOf("__")==0) continue
+            if(tokenName.indexOf("__")==0) continue
 
-            log('_applyLess: path to object: '+objPath)
+            log('_applyLess: tokenID: '+tokenName)
 
             // work with token
-            var token = tokens[objPath]
-            for(var style of Object.keys(token)){
-                 // skip comments
-                if(style.indexOf("__")==0) continue
+            var token = tokens[tokenName]
+            var styleValue = ""            
 
-                var lessVarName = token[style]
-                
-                this.log('lessVarName='+lessVarName)
-                this.log('objPath='+objPath)
-                this.log('style='+style)
-                this._applyLessVar(lessVarName, objPath,style)
-            }    
+            // get info from LESS file 
+            var lessName =  token['less']
+            if(lessName.indexOf("__")==0) continue // Less Variable not defined
+            var styleValue = this._getLessVar(lessName)            
+
+            // get sketch object by path
+            var sketchPaths = token['sketch']
+            if(!Array.isArray(sketchPaths))
+                sketchPaths = [sketchPaths]
+
+            for(var sketchPath of sketchPaths){
+                if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
+                var sketchObj = this._getObjByPath('sketchPath')
+
+                // apply style
+                var styleType = this._getStyleByTokenName(tokenName)
+
+                if('fill-color'==styleType) return this._applyFillColor(tokenName,sketchObj,styleValue)
+                else if('text-color'==styleType) return this._applyTextColor(tokenName,sketchObj,styleValue)
+                else if('border-color'==styleType) return this._applyBorderColor(tokenName,sketchObj,styleValue)
+            }
         }
-
-        //this._applyLessVar("brand-color-5", "Styles/Buttons/Raised/Primary/Back","fill-color")
-        //this._applyLessVar("brand-color-5", "Styles/Buttons/Submit/Ok/Back","fill-color")
-
-        //this._applyTextColor("brand-color-5", "Styles/Buttons/Raised/Primary Back")
     }
 
     loadLess() {
@@ -173,6 +181,14 @@ class DSApp {
         return true
     }
 
+    _getStyleByTokenName(tokenName){
+        if(tokenName.endsWith('_color')) return "text-color"
+        if(tokenName.endsWith('_bg')) return "fill-color"
+        if(tokenName.endsWith('_border')) return "border-color"
+
+        return undefined
+    }
+
     _getObjByPath(objPath){
         var names = objPath.split('/')
         var objects = this.pages
@@ -192,6 +208,10 @@ class DSApp {
     }
 
     _getLessVar(lessName){
+        // cut first @
+        if(lessName.indexOf("@")==0) 
+            lessName = lessName.substring(1,lessName.length)
+
         var lessVar = this.less[lessName]
         if (undefined == lessVar) {
             this.UI.alert("Alert", "Can not find less variable for '" + lessName + "'")
@@ -200,30 +220,15 @@ class DSApp {
         return lessVar
     }
 
-    _applyLessVar(lessName, objPath,styleType) {
-        var obj = this._getObjByPath(objPath)
-        if( undefined==obj)  return false
-
-        // apply style
-        if('fill-color'==styleType) return this._applyFillColor(lessName, objPath, obj)
-        else if('text-color'==styleType) return this._applyTextColor(lessName, objPath, obj)
-        else if('border-color'==styleType) return this._applyBorderColor(lessName, objPath, obj)
-
-        return true
-    }
-
-    _applyFillColor(lessName, objPath, obj) {
-        var color = this._getLessVar(lessName)
-        if(undefined == color) return false    
-
+ 
+    _applyFillColor(tokenName, obj, color) {
         let fills = obj.slayer.style.fills
-        if(undefined==fills) return app.logError('No fills for '+objPath)
+        if(undefined==fills) return app.logError('No fills for '+tokenName)
     
         fills =  fills.filter(function(el){return el.enabled})
-        if(0==fills.length) return app.logError('No enabled fills for '+objPath)
+        if(0==fills.length) return app.logError('No enabled fills for '+tokenName)
 
         fills[0].color = color
-
 
         // propagate new shared style to all
         obj.slayer.sharedStyle.style = obj.slayer.style
@@ -233,13 +238,11 @@ class DSApp {
     }
 
 
-    _applyBorderColor(lessName, objPath, obj) {
-        var color = this._getLessVar(lessName)
-        if(undefined == color) return false    
+    _applyBorderColor(tokenName, obj, color){
 
         var borders = obj.slayer.style.borders
         if(0==borders.length){
-            return this.logError('No border for '+objPath)
+            return this.logError('No border for '+tokenName)
         }
         borders[0].color = color
 
@@ -250,9 +253,7 @@ class DSApp {
         return true
     }
 
-    _applyTextColor(lessName, objPath,obj) {
-        var color = this._getLessVar(lessName)
-        if(undefined == color) return false    
+    _applyTextColor(tokenName, obj, color){
 
         var immutableColor = MSImmutableColor.colorWithSVGString_(color)
         var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
