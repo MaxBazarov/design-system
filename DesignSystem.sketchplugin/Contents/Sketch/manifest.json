@@ -13,7 +13,7 @@
     {
       "script" : "cmd-apply-less.js",
       "handler" : "onRun",
-      "name" : "Apply LESS file",
+      "name" : "Apply UI Tokens",
       "identifier" : "cmApplyLess"
     }
   ],

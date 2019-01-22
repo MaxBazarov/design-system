@@ -74,6 +74,8 @@ class DSApp {
         // show final message
         if(this.errors.length>0){
             this.UI.alert('Found errors',this.errors.join("\n\n"))
+        }else{
+            this.UI.message('Tokens applied')
         }
 
         return true
@@ -130,60 +132,60 @@ class DSApp {
 
         for(var tokenName of Object.keys(tokens)){
             // skip comments
-            if(tokenName.indexOf("__")==0) continue
-
-            log('_applyLess: tokenID: '+tokenName)
+            if(tokenName.indexOf("__")==0) continue          
 
             // work with token
             var token = tokens[tokenName]
-            var styleValue = undefined                       
-            
-            var opacity = token['opacity']
 
-            // get info from LESS file 
-            var lessCommented = false
-            var lessName =  token['less']
-            if(undefined!=lessName){
-                if(lessName.indexOf("__")==0)
-                    lessCommented = true
-                else
-                    styleValue = this._getLessVar(lessName)            
-            }
-            if(undefined==styleValue && undefined!=token['value']){
-                styleValue = token['value']
+            // fill token attribute values from LESS file
+            for(var attrName of Object.keys(token)){
+                var attrValue= token[attrName]
+                if(''==attrValue || attrValue.indexOf("__")==0) continue
+
+                if(attrValue.indexOf("@")==0){
+                    var lessValue = this._getLessVar(attrValue)                            
+                    if(undefined==lessValue) continue
+                    token[attrName] = lessValue               
+                }
             }
 
-            if(undefined==styleValue){
-                if(lessCommented) continue
-                this.logError('Both "less" and "value" are undefined for '+tokenName)
-                continue
-            }
-            
-            // get sketch object by path
             var sketchPaths = token['sketch']
             if(!Array.isArray(sketchPaths))
                 sketchPaths = [sketchPaths]
 
-            for(var sketchPath of sketchPaths){
-                if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
-                var sketchObj = this._getObjByPath(sketchPath)
-                if(undefined==sketchObj){
-                    this.logError("Can not find Sketch object by path: "+sketchPath)
-                    continue
-                }
+            var ignoreAttribs = {
+                "sketch": true,
+                "text-color-opacity":true,
+                "fill-color-opacity":true,
+            }
 
-                // apply style
-                var styleType = this._getStyleByTokenName(tokenName)
-                if(undefined==styleType){
-                    this.logError('Style type is unrecognized for '+tokenName)
-                    continue
-                }
+            // apply every style to every object
+            for(var attrName of Object.keys(token)){                
+                if(attrName.indexOf("__")==0 || ignoreAttribs[attrName]) continue
 
-                if('fill-color'==styleType) this._applyFillColor(tokenName,sketchObj,styleValue,opacity)
-                else if('text-color'==styleType) this._applyTextColor(tokenName,sketchObj,styleValue,opacity)
-                else if('border-color'==styleType) this._applyBorderColor(tokenName,sketchObj,styleValue,opacity)
+                var attrValue = token[attrName]
+
+                log('_applyLess: tokenID: '+tokenName+" attribute: "+attrName)
+         
+                for(var sketchPath of sketchPaths){
+                    if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
+                    var sketchObj = this._getObjByPath(sketchPath)
+                    if(undefined==sketchObj){
+                        this.logError("Can not find Sketch layer by path: "+sketchPath)
+                        continue
+                    }
+
+                    if('border-color'==attrName) this._applyBorderColor(token,tokenName,sketchObj,attrValue)
+                    else if('fill-color'==attrName) this._applyFillColor(token,tokenName,sketchObj,attrValue)
+                    else if('text-color'==attrName) this._applyTextColor(token,tokenName,sketchObj,attrValue)
+                    else if('text-transform'==attrName) this._applyTextTransform(token,tokenName,sketchObj,attrValue)  
+                    else if('font-weight'==attrName) this._applyFontWeight(token,tokenName,sketchObj,attrValue)  
+                    else if('font-size'==attrName) this._applyFontSize(token,tokenName,sketchObj,attrValue)  
+                    else this.logError('Uknown attribute name: '+attrName)  
+                }
             }
         }
+        
         return true
     }
 
@@ -211,14 +213,6 @@ class DSApp {
         return true
     }
 
-    _getStyleByTokenName(tokenName){
-        if(tokenName.endsWith('-bordercolor')) return "border-color"
-        if(tokenName.endsWith('-color')) return "text-color"
-        if(tokenName.endsWith('-bg')) return "fill-color"        
-
-        return undefined
-    }
-
     _getObjByPath(objPath){
         var names = objPath.split('/')
         var objects = this.pages
@@ -230,13 +224,22 @@ class DSApp {
         }
 
         if (undefined == obj) {
-            this.UI.alert("Alert", "Can not find Sketch layer by path '" + objPath + "'")
             return undefined
         }
 
         return obj
     }
 
+    _syncSharedStyle(tokenName,obj){
+        if(!obj.slayer.sharedStyle){
+            return this.logError('No shared style for some of "'+tokenName+'" styles')
+        }
+        obj.slayer.sharedStyle.style = obj.slayer.style
+        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+        return true
+    }
+    
+    
     _getLessVar(lessName){
         // cut first @
         if(lessName.indexOf("@")==0) 
@@ -244,33 +247,31 @@ class DSApp {
 
         var lessVar = this.less[lessName]
         if (undefined == lessVar) {
-            this.UI.alert("Alert", "Can not find less variable for '" + lessName + "'")
-            return null
+            this.logError("Can not find less variable for '" + lessName + "'")
+            return undefined
         }
         return lessVar
     }    
  
-    _applyFillColor(tokenName, obj, color,opacity) {
+    _applyFillColor(token, tokenName, obj, color) {
+        var opacity = token['fill-color-opacity']
+
         if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)        
         
         let fills = obj.slayer.style.fills
         if(undefined==fills) return app.logError('No fills for '+tokenName)
     
         fills =  fills.filter(function(el){return el.enabled})
-        if(0==fills.length) return app.logError('No enabled fills for '+tokenName)
-         
+        if(0==fills.length) return app.logError('No enabled fills for '+tokenName)         
 
         fills[0].color = color
 
-        // propagate new shared style to all
-        obj.slayer.sharedStyle.style = obj.slayer.style
-        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-
-        return true
+        return this._syncSharedStyle(tokenName,obj)        
     }
 
 
-    _applyBorderColor(tokenName, obj, color,opacity){
+    _applyBorderColor(token,tokenName, obj, color){
+        var opacity = token['border-color-opacity']
         if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
 
         var borders = obj.slayer.style.borders
@@ -279,32 +280,36 @@ class DSApp {
         }
         borders[0].color = color        
 
-        // propagate new shared style to all
-        obj.slayer.sharedStyle.style = obj.slayer.style
-        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-
-        return true
+        return this._syncSharedStyle(tokenName,obj)
     }
 
-    _getObjTextAttributes(obj){
+    _getObjTextData(obj){
         var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
         const textAttribs = orgTextStyle.attributes()
         
         const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
+        const colorAttr = textAttribs.NSColor
         const kernAttr = textAttribs.NSKern
 
         var attributes = {
-            'NSColor': textAttribs.NSColor.copy(),
             'NSFont' : textAttribs.NSFont.copy(),
             'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
         };
+        if(colorAttr) 
+            attributes['NSColor'] = colorAttr.copy()
         if(textTransformAttribute) 
             attributes['MSAttributedStringTextTransformAttribute'] = textTransformAttribute.copy()
         if(kernAttr) 
             attributes['NSKern'] = kernAttr.copy()
+
+        return {
+            'attributes':attributes,
+            'orgTextStyle':orgTextStyle
+        }
     }
 
-    _applyTextColor(tokenName, obj, color,opacity){
+    _applyTextColor(token,tokenName, obj, color){
+        var opacity = token['text-color-opacity']
 
         var immutableColor = MSImmutableColor.colorWithSVGString_(color)
         var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
@@ -312,40 +317,52 @@ class DSApp {
         ////
         const alpha = undefined!=opacity?opacity:1
 
-        const attributes = this._getObjTextAttributes(obj)
-        attributes['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
+        const data = this._getObjTextData(obj)
+        data['attributes']['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
        
         /////
-        var textStyle = MSTextStyle.styleWithAttributes_(attributes);
-        textStyle.verticalAlignment = orgTextStyle.verticalAlignment()
+        var textStyle = MSTextStyle.styleWithAttributes_(data['attributes']);
+        textStyle.verticalAlignment = data['orgTextStyle'].verticalAlignment()
         /////
 
         obj.slayer.style.sketchObject.setTextStyle_(textStyle)
 
-        obj.slayer.sharedStyle.style = obj.slayer.style
-        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-
-        return true
+        return this._syncSharedStyle(tokenName,obj)
     }
 
-    _applyTextTransform(tokenName, obj, color,opacity){
-        var transform = undefined
+    _applyFontSize(token,tokenName, obj,fontSize){
+        obj.slayer.style.fontSize = parseFloat(fontSize)
+
+        return this._syncSharedStyle(tokenName,obj)
+    }
 
 
-        const attributes = this._getObjTextAttributes(obj)
-        attributes['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
-       
-        /////
-        var textStyle = MSTextStyle.styleWithAttributes_(attributes);
-        textStyle.verticalAlignment = orgTextStyle.verticalAlignment()
+    _applyFontWeight(token,tokenName, obj,fontWeight){
+        log('fontWeight='+ obj.slayer.style.fontWeight)
+
+        //obj.slayer.style.fontSize = parseFloat(fontSize)
+
+        return this._syncSharedStyle(tokenName,obj)
+    }    
+
+    _applyTextTransform(token,tokenName, obj, transform){
+        var transformAttr = 0
+        if('uppercase'==transform) transformAttr = 1
+        else if('lowercase'==transform) transformAttr = 2
+        else if('capitalise'==transform) transformAttr = 0
+        else return this.logError('Uknown texttransform:'+transform)
+
+        const data = this._getObjTextData(obj)
+        data['attributes']['MSAttributedStringTextTransformAttribute'] = transformAttr
+      
+        /////        
+        var textStyle = MSTextStyle.styleWithAttributes_(data['attributes']);
+        textStyle.verticalAlignment = data['orgTextStyle'].verticalAlignment()
         /////
 
         obj.slayer.style.sketchObject.setTextStyle_(textStyle)
 
-        obj.slayer.sharedStyle.style = obj.slayer.style
-        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-
-        return true
+        return this._syncSharedStyle(tokenName,obj)
     }
 
 
