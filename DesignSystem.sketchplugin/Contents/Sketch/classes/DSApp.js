@@ -338,9 +338,18 @@ class DSApp {
 
 
     _applyFontWeight(token,tokenName, obj,fontWeight){
-        log('fontWeight='+ obj.slayer.style.fontWeight)
+        var weights = {
+            'regular':5,
+            'semi-bold':8,
+            'bold':9
+        }
 
-        //obj.slayer.style.fontSize = parseFloat(fontSize)
+        if(undefined==weights[fontWeight]){
+            return this.logError('Wrong font weight for token: '+tokenName)
+        }
+        
+        //log('fontWeight='+ obj.slayer.style.fontWeight)    
+        obj.slayer.style.fontWeight = weights[fontWeight]
 
         return this._syncSharedStyle(tokenName,obj)
     }    
