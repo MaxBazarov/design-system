@@ -5,6 +5,7 @@
 
 var app = undefined
 var Settings = require('sketch/settings')
+var Style = require('sketch/dom').Style
 
 
 class DSApp {
@@ -159,31 +160,30 @@ class DSApp {
                 "fill-color-opacity":true,
             }
 
-            // apply every style to every object
-            for(var attrName of Object.keys(token)){                
-                if(attrName.indexOf("__")==0 || ignoreAttribs[attrName]) continue
-
-                var attrValue = token[attrName]
-
-                log('_applyLess: tokenID: '+tokenName+" attribute: "+attrName)
-         
-                for(var sketchPath of sketchPaths){
-                    if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
-                    var sketchObj = this._getObjByPath(sketchPath)
-                    if(undefined==sketchObj){
-                        this.logError("Can not find Sketch layer by path: "+sketchPath)
-                        continue
-                    }
-
-                    if('border-color'==attrName) this._applyBorderColor(token,tokenName,sketchObj,attrValue)
-                    else if('fill-color'==attrName) this._applyFillColor(token,tokenName,sketchObj,attrValue)
-                    else if('text-color'==attrName) this._applyTextColor(token,tokenName,sketchObj,attrValue)
-                    else if('text-transform'==attrName) this._applyTextTransform(token,tokenName,sketchObj,attrValue)  
-                    else if('font-weight'==attrName) this._applyFontWeight(token,tokenName,sketchObj,attrValue)  
-                    else if('font-size'==attrName) this._applyFontSize(token,tokenName,sketchObj,attrValue)  
-                    else this.logError('Uknown attribute name: '+attrName)  
+            for(var sketchPath of sketchPaths){
+                if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
+                var sketchObj = this._getObjByPath(sketchPath)
+                if(undefined==sketchObj){
+                    this.logError("Can not find Sketch layer by path: "+sketchPath)
+                    continue
                 }
+
+                // Apply Styles
+                if(
+                    ('font-size' in token) || ('text-color' in token)
+                    || ('font-weight' in token) || ('text-transform' in token)
+                )
+                    this._applyTextStyle(token,tokenName,sketchObj)               
+                if('fill-color' in token)
+                    this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
+                if('border-color' in token)
+                    this._applyBorderColor(token,tokenName,sketchObj,token['border-color'])
+                if('border-width' in token)
+                    this._applyBorderWidth(token,tokenName,sketchObj,token['border-width'])
+                
+
             }
+
         }
         
         return true
@@ -254,17 +254,20 @@ class DSApp {
     }    
  
     _applyFillColor(token, tokenName, obj, color) {
-        var opacity = token['fill-color-opacity']
-
-        if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)        
         
-        let fills = obj.slayer.style.fills
-        if(undefined==fills) return app.logError('No fills for '+tokenName)
-    
-        fills =  fills.filter(function(el){return el.enabled})
-        if(0==fills.length) return app.logError('No enabled fills for '+tokenName)         
+        if(color!=""){
+            var opacity = token['fill-color-opacity']
+            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
 
-        fills[0].color = color
+            var fill = {
+                color: color,
+                fill: Style.FillType.Color
+            }
+            obj.slayer.style.fills = [fill]
+            
+        }else{
+            obj.slayer.style.fills = []
+        }
 
         return this._syncSharedStyle(tokenName,obj)        
     }
@@ -279,6 +282,17 @@ class DSApp {
             return this.logError('No border for '+tokenName)
         }
         borders[0].color = color        
+
+        return this._syncSharedStyle(tokenName,obj)
+    }
+
+
+    _applyBorderWidth(token,tokenName, obj, width){
+        var borders = obj.slayer.style.borders
+        if(0==borders.length){
+            return this.logError('No border for '+tokenName)
+        }
+        borders[0].thickness = width
 
         return this._syncSharedStyle(tokenName,obj)
     }
@@ -306,6 +320,50 @@ class DSApp {
             'attributes':attributes,
             'orgTextStyle':orgTextStyle
         }
+    }
+
+
+    _applyTextStyle(token,tokenName, obj){
+        // read token attribues
+        var fontSize = token['font-size']
+        var color = token['text-color']
+        var fontWeight = token['font-weight']
+        var transform = token['text-transform']
+        
+        //// SET FONT SIZE
+        if(undefined!=fontSize){          
+            obj.slayer.style.fontSize = parseFloat(fontSize)
+        }
+        
+        //// SET FONT WEIGHT
+        if(undefined!=fontWeight){
+            var weights = {
+                'regular':5,
+                'semi-bold':8,
+                'bold':9
+            }
+
+            if(undefined==weights[fontWeight]){
+                return this.logError('Wrong font weight for token: '+tokenName)
+            }
+            
+            obj.slayer.style.fontWeight = weights[fontWeight]
+        }
+
+         // SET TEXT COLOR
+         if(undefined!=color){
+            let opacity = token['text-color-opacity']
+            let opacityHEX = undefined!=opacity?Utils.opacityToHex(opacity):''
+
+            obj.slayer.style.textColor = color + opacityHEX
+        }
+        // SET TEXT TRANSFORM
+        if(undefined!=transform){
+            obj.slayer.style.textTransform = transform
+        }
+    
+        return this._syncSharedStyle(tokenName,obj)
+
     }
 
     _applyTextColor(token,tokenName, obj, color){
