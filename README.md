@@ -11,6 +11,13 @@ sudo -s
 npm i less -g 
 ```
 
+## Usage
+1. Download [example](https://github.com/MaxBazarov/design-system/raw/master/Examples/One.zip) and unarchive it into some local folder.
+2. Open Widget Library.sketch file in Sketch.app
+3. Run Plugins > Design System > Apply Design Tokens menu command
+4. Specify JSON and LESS files 
+
+
 ## Features
 The following styles are supporting.
 ```
