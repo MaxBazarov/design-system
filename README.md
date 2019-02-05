@@ -19,6 +19,8 @@ npm i less -g
 
 <img width="755" height="538" src="https://raw.githubusercontent.com/MaxBazarov/design-system/master/Examples/One/Illustration.png"/>
 
+5. Repeat the same operation, but select another less file. See how styles and widgets look now.
+
 
 ## Features
 The following styles are supporting.
