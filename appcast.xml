@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Design System</title>
-        <link>https://raw.githubusercontent.com/MaxBazarov/design-system/master/appcast.xml</link>
+        <link>https://github.com/MaxBazarov/design-system/raw/master/appcast.xml</link>
         <description>Design System</description>
         <language>en</language>
          <item>
             <title>Version 1.0.0</title>
             <date>5 Feb 2019</date>
-            <enclosure url="https://github.com/MaxBazarov/exporter/raw/master/DesignSystem.sketchplugin.zip" sparkle:version="1.0.0"/>
+            <enclosure url="https://github.com/MaxBazarov/design-system/raw/master/DesignSystem.sketchplugin.zip" sparkle:version="1.0.0"/>
         </item> 
         
     </channel>
