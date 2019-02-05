@@ -16,11 +16,20 @@ The following styles are supporting.
 ```
 Text Layers:
 -----------------------------------------
-"font-size":             "12.0"   
-"font-weight":           "bold" // "bold" or "regular" or "semibold"
+"font-size":             "12.0",   
+"font-weight":           "bold", // "bold" or "regular" or "semibold"
 "text-color":            "#FFFFFF"
-"text-color-opacity":    "63%" // "63%" or "0.42"
-"text-transform":        "uppercase"  // "uppercase", "lowercase", and "none"
+"text-color-opacity":    "63%", // "63%" or "0.42"
+"text-transform":        "uppercase",  // "uppercase", "lowercase", and "none"
+
+Shape Layers:
+-----------------------------------------
+"fill-color":            "#B0AFB1",
+"fill-color-opacity":    "63%", // "63%" or "0.42"
+"border-color":          "#000000",
+"border-width":          "2", //px
+"shape-radius":          "5", //px
+"shadow":                "0 10px 20px 2 #00000033",
 ```
 
 ## Requirements
