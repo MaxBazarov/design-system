@@ -1,5 +1,5 @@
 # design-system
-Sketch.app plugin to apply LESS styles to Sketch widgets
+Sketch.app plugin to apply UI tokens and LESS styles to Sketch styles
 
 ## Installation
 sudo -s  

@@ -176,11 +176,12 @@ class DSApp {
                     this._applyTextStyle(token,tokenName,sketchObj)               
                 if('fill-color' in token)
                     this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
-                if('border-color' in token)
-                    this._applyBorderColor(token,tokenName,sketchObj,token['border-color'])
-                if('border-width' in token)
-                    this._applyBorderWidth(token,tokenName,sketchObj,token['border-width'])
-                
+                 if('shadow' in token)
+                    this._applyShadow(token,tokenName,sketchObj,token['shadow'])
+                if(('border-color' in token) || ('border-width' in token))
+                    this._applyBorderStyle(token,tokenName,sketchObj)                        
+                if('shape-radius' in token)
+                    this._applyShapeRadius(token,tokenName,sketchObj)
 
             }
 
@@ -271,28 +272,65 @@ class DSApp {
 
         return this._syncSharedStyle(tokenName,obj)        
     }
+ 
 
-
-    _applyBorderColor(token,tokenName, obj, color){
-        var opacity = token['border-color-opacity']
-        if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
-
-        var borders = obj.slayer.style.borders
-        if(0==borders.length){
-            return this.logError('No border for '+tokenName)
+    _applyShadow(token, tokenName, obj, shadow) {
+        
+        if(shadow!=""){
+            var shadow = Utils.splitCSSShadow(shadow)            
+            shadow.enabled = true
+            shadow.type = 'Shadow'
+            obj.slayer.style.shadows = [shadow]
+        }else{
+            obj.slayer.style.shadows = []
         }
-        borders[0].color = color        
 
-        return this._syncSharedStyle(tokenName,obj)
+        return this._syncSharedStyle(tokenName,obj)        
     }
 
+    _applyShapeRadius(token, tokenName, obj) {
+        
+        var radius = token['shape-radius']
 
-    _applyBorderWidth(token,tokenName, obj, width){
-        var borders = obj.slayer.style.borders
-        if(0==borders.length){
-            return this.logError('No border for '+tokenName)
+        if(radius!=""){                   
+            obj.nlayer.children().forEach(function(e){
+                if(e.class() == 'MSRectangleShape') {
+                    log(e)
+                    e.cornerRadiusFloat = parseFloat(radius)
+                }
+            });
+
+            //obj.slayer.style.borderOptions = [shadow]
+        }else{
+            //obj.slayer.style.shadows = []
         }
-        borders[0].thickness = width
+
+        return this._syncSharedStyle(tokenName,obj)        
+    } 
+
+
+    _applyBorderStyle(token,tokenName, obj){
+        
+        var border = {
+        }
+        
+        // process color
+        if(('border-color' in token)){
+            var color = token['border-color']
+            var opacity = token['border-color-opacity']
+            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
+            border.color = color        
+        }
+
+        // process width
+        if('border-width' in token){
+            border.thickness = token['border-width']
+        }
+       
+
+        // save new border in style
+        obj.slayer.style.borders = [border]
+
 
         return this._syncSharedStyle(tokenName,obj)
     }
@@ -365,73 +403,6 @@ class DSApp {
         return this._syncSharedStyle(tokenName,obj)
 
     }
-
-    _applyTextColor(token,tokenName, obj, color){
-        var opacity = token['text-color-opacity']
-
-        var immutableColor = MSImmutableColor.colorWithSVGString_(color)
-        var msColor = MSColor.alloc().initWithImmutableObject_(immutableColor)
-
-        ////
-        const alpha = undefined!=opacity?opacity:1
-
-        const data = this._getObjTextData(obj)
-        data['attributes']['NSColor'] = NSColor.colorWithRed_green_blue_alpha(msColor.red(),msColor.green(),msColor.blue(),alpha)
-       
-        /////
-        var textStyle = MSTextStyle.styleWithAttributes_(data['attributes']);
-        textStyle.verticalAlignment = data['orgTextStyle'].verticalAlignment()
-        /////
-
-        obj.slayer.style.sketchObject.setTextStyle_(textStyle)
-
-        return this._syncSharedStyle(tokenName,obj)
-    }
-
-    _applyFontSize(token,tokenName, obj,fontSize){
-        obj.slayer.style.fontSize = parseFloat(fontSize)
-
-        return this._syncSharedStyle(tokenName,obj)
-    }
-
-
-    _applyFontWeight(token,tokenName, obj,fontWeight){
-        var weights = {
-            'regular':5,
-            'semi-bold':8,
-            'bold':9
-        }
-
-        if(undefined==weights[fontWeight]){
-            return this.logError('Wrong font weight for token: '+tokenName)
-        }
-        
-        //log('fontWeight='+ obj.slayer.style.fontWeight)    
-        obj.slayer.style.fontWeight = weights[fontWeight]
-
-        return this._syncSharedStyle(tokenName,obj)
-    }    
-
-    _applyTextTransform(token,tokenName, obj, transform){
-        var transformAttr = 0
-        if('uppercase'==transform) transformAttr = 1
-        else if('lowercase'==transform) transformAttr = 2
-        else if('capitalise'==transform) transformAttr = 0
-        else return this.logError('Uknown texttransform:'+transform)
-
-        const data = this._getObjTextData(obj)
-        data['attributes']['MSAttributedStringTextTransformAttribute'] = transformAttr
-      
-        /////        
-        var textStyle = MSTextStyle.styleWithAttributes_(data['attributes']);
-        textStyle.verticalAlignment = data['orgTextStyle'].verticalAlignment()
-        /////
-
-        obj.slayer.style.sketchObject.setTextStyle_(textStyle)
-
-        return this._syncSharedStyle(tokenName,obj)
-    }
-
 
     
     _initPages() {

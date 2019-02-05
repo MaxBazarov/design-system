@@ -1,13 +1,13 @@
 {
   "name": "Design System",
-  "description": "Apply LESS styles to Sketch widgets",
+  "description": "Apply UI tokens to Sketch styles",
   "author" : "Maxim Bazarov",
   "homepage": "",  
   "identifier" : "com.cloudblue.sketch.ds",
   "appcast": "https://raw.githubusercontent.com/MaxBazarov/design-system/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "0.0.2",
+  "version" : "1.0.0",
   "icon": "icon.png",
   "commands" : [   
     {

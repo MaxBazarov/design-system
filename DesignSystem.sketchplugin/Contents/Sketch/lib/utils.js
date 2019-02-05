@@ -89,9 +89,34 @@ class Utils {
         }
     }
 
-    // opacity: 0 .. 1.0(transparent)
+
+    // s:  "0 4px 16px 0 #000000"
+    static splitCSSShadow(src){
+        var pxFunc = function(s){
+            s = s.replace('px','')
+            return parseInt(s)
+        }
+
+        var items = src.split(' ')
+        return {
+            'x': pxFunc(items[0]),
+            'y': pxFunc(items[1]),
+            'blur': pxFunc(items[2]),
+            'spread': items.length>3?pxFunc(items[3]):0,
+            'color' : items.length>4?items[4]:"#000000"
+        }        
+    }
+
+
+    // opacity: 0 .. 1.0(transparent) or 0(transparent)..100%
     static opacityToHex(opacity){
-        var i = Math.round(opacity * 100) / 100;
+        if(typeof opacity=='string' && opacity.indexOf("%")>=0){
+            opacity = opacity.replace("%","")
+            opacity = parseInt(opacity)/100
+        }
+
+        var i = Math.round(opacity * 100) / 100;        
+
         var alpha = Math.round(i * 255);
         var hex = (alpha + 0x10000).toString(16).substr(-2).toUpperCase();
         return hex
