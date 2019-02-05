@@ -31,7 +31,7 @@
         "fill-color" :           "@color-primary",
         "border-color":          "",
         "border-width":          "",
-        "shadow":            "0 10px 20px 2 #00000033",
+        "shadow":                "0 10px 20px 2 #00000033",
         "sketch":                "Styles/Controls/Buttons/Submit/Ok/Back" 
     },
     "@btn-submit-cancel-back":{
