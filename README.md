@@ -10,3 +10,6 @@ Sketch.app plugin to apply UI tokens and LESS styles to Sketch styles
 sudo -s  
 npm i less -g 
 ```
+
+## Requirements
+Some styles, such as text font/transformation/etc require the latest Sketch 53
