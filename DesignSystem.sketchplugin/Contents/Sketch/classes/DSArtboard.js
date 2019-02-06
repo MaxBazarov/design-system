@@ -11,9 +11,9 @@ class DSArtboard extends DSLayer {
         const artboards = [];
 
         artboardsSrc.forEach(function(artboard){
-            //if( !artboard.isKindOfClass(MSSymbolMaster)){
+            if( !artboard.isKindOfClass(MSSymbolMaster)){
               artboards.push(artboard);
-            //}
+            }
         });
       
         return Utils.getArtboardGroups(artboards, context);  

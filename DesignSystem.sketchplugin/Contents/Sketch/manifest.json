@@ -4,7 +4,7 @@
   "author" : "Maxim Bazarov",
   "homepage": "",  
   "identifier" : "com.cloudblue.sketch.ds",
-  "appcast": "https://github.com/MaxBazarov/design-system/raw/master/appcast.xml",
+  "appcast": "https://raw.githubusercontent.com/MaxBazarov/design-system/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
   "version" : "1.0.0",

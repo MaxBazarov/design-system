@@ -178,7 +178,7 @@ class DSApp {
                     this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
                  if('shadow' in token)
                     this._applyShadow(token,tokenName,sketchObj,token['shadow'])
-                if(('border-color' in token) || ('border-width' in token))
+                if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
                     this._applyBorderStyle(token,tokenName,sketchObj)                        
                 if('shape-radius' in token)
                     this._applyShapeRadius(token,tokenName,sketchObj)
@@ -326,8 +326,22 @@ class DSApp {
         if('border-width' in token){
             border.thickness = token['border-width']
         }
-       
 
+         // process position
+        if('border-position' in token){
+            var conversion = {
+                'center':     Style.BorderPosition.Center,
+                'inside':     Style.BorderPosition.Inside,
+                'outside':    Style.BorderPosition.Outside
+            }
+            if( !(token['border-position'] in conversion) ){
+                return this.logError('Wrong border-position for token: '+tokenName)
+            }
+
+            border.position = conversion[ token['border-position'] ]
+        }
+       
+       
         // save new border in style
         obj.slayer.style.borders = [border]
 
