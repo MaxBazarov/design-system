@@ -8,6 +8,7 @@ var Constants = {
 };
 
 var SettingKeys = {
-  PLUGIN_PATH_TO_LESS: "pluginPathToLess", 
-  PLUGIN_PATH_TO_TOKENS: "pluginPathToTokens", 
+    PLUGIN_PATH_TO_BRAND_LESS:          "pluginPathToBrandLess", 
+    PLUGIN_PATH_TO_TOKENS_LESS:         "pluginPathToTokensLess", 
+    PLUGIN_PATH_TO_SKETCHSTYLES_LESS:   "pluginPathToSketchStylesJSON"
 };

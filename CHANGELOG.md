@@ -1,6 +1,7 @@
 # Change Log
 
-##  Version 1.1.0 (? Feb 2019)
+##  Version 1.1.0 (9 Feb 2019)
+- Added support for optional Brand Colors file
 - Added "border-position" style
 
 ##  Version 1.0.0 (5 Feb 2019)

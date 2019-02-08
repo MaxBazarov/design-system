@@ -31,10 +31,12 @@ class DSApp {
         app = this
 
         // load settings
-        this.pathToLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_LESS)
-        if(undefined==this.pathToLess) this.pathToLess = ''        
-        this.pathToTokens = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS)
-        if(undefined==this.pathToTokens) this.pathToTokens = ''
+        this.pathToBrandLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_BRAND_LESS)
+        if(undefined==this.pathToBrandLess) this.pathToBrandLess = ''        
+        this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
+        if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
+        this.pathToSketchStylesJSON = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS)
+        if(undefined==this.pathToSketchStylesJSON) this.pathToSketchStylesJSON = ''
     }
 
     // Tools
@@ -86,49 +88,81 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply LESS file to Sketch styles",NSMakeRect(0, 0, 500, 200),"Apply")
+        log('1')
+        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 500, 240),"Apply")
 
-        dialog.addTextInput("pathToLess","Path to LESS file",this.pathToLess,'e.g. ~/Work/green.less',450)  
-        dialog.addButton("selectPathToLess","Select",function(){
-          const newPath = Utils.askFilePath(dialog.views['pathToLess'].stringValue()+"")
+        dialog.addTextInput("pathToBrandLess","Path to Brand Colors (LESS file)[Optional]",this.pathToBrandLess,'e.g. ~/Work/brand1.less',450)  
+        dialog.addButton("selectPathToBrandLess","Select",function(){
+          const newPath = Utils.askFilePath(dialog.views['pathToBrandLess'].stringValue()+"")
           if (newPath != null) {
-            dialog.views['pathToLess'].setStringValue(newPath)
+            dialog.views['pathToBrandLess'].setStringValue(newPath)
           }
           return
         })
 
-        dialog.addTextInput("pathToTokens","Path to tokens JSON file",this.pathToTokens,'e.g. ~/Work/tokens.json',450)  
-        dialog.addButton("selectPathToTokens","Select",function(){
-          const newPath = Utils.askFilePath(dialog.views['pathToTokens'].stringValue()+"")
+        log('2')
+
+        dialog.addTextInput("pathToTokensLess","Path to UI Tokens (LESS file)",this.pathToTokensLess,'e.g. ~/Work/ui-tokens.less',450)  
+        dialog.addButton("selectPathToTokensLess","Select",function(){
+          const newPath = Utils.askFilePath(dialog.views['pathToTokensLess'].stringValue()+"")
           if (newPath != null) {
-            dialog.views['pathToTokens'].setStringValue(newPath)
+            dialog.views['pathToTokensLess'].setStringValue(newPath)
           }
           return
         })
+
+
+        log('3')
+
+        dialog.addTextInput("pathToSketchStylesJSON","Path to Sketch Styles (JSON file)",this.pathToSketchStylesJSON,'e.g. ~/Work/sketch-styles.json',450)  
+        dialog.addButton("selectPathToSketchStylesJSON","Select",function(){
+          const newPath = Utils.askFilePath(dialog.views['pathToSketchStylesJSON'].stringValue()+"")
+          if (newPath != null) {
+            dialog.views['pathToSketchStylesJSON'].setStringValue(newPath)
+          }
+          return
+        })
+
+        log('4')
 
         while(true){
             const result = dialog.run()        
             if(!result) return false
     
-            this.pathToLess = dialog.views['pathToLess'].stringValue()+""
-            if(""==this.pathToLess) continue
-            this.pathToTokens = dialog.views['pathToTokens'].stringValue()+""
-            if(""==this.pathToTokens) continue
+            this.pathToBrandLess = dialog.views['pathToBrandLess'].stringValue()+""
+            this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
+            if(""==this.pathToTokensLess) continue
+            this.pathToSketchStylesJSON = dialog.views['pathToSketchStylesJSON'].stringValue()+""
+            if(""==this.pathToSketchStylesJSON) continue
+
 
             break
         }
     
         dialog.finish()
 
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_LESS, this.pathToLess)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS, this.pathToTokens)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_BRAND_LESS, this.pathToBrandLess)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS, this.pathToSketchStylesJSON)
 
         return true
     }
 
+    _getTokensText(){
+        var tokensStr = ''
+
+        if(this.pathToBrandLess!=''){
+            tokensStr = tokensStr + Utils.readFile(this.pathToBrandLess)
+        }
+
+        tokensStr = tokensStr + Utils.readFile(this.pathToTokensLess)
+
+        return tokensStr
+    }
+
 
     _applyLess() {
-        var tokensStr = Utils.readFile(this.pathToTokens)
+        var tokensStr = Utils.readFile(this.pathToSketchStylesJSON)
         var tokens = JSON.parse(tokensStr)
 
         for(var tokenName of Object.keys(tokens)){
@@ -199,7 +233,12 @@ class DSApp {
 
         // Run less2json 
         const pathToLessJSON = tempFolder + "/nsdata.less.json"
-        const runResult = Utils.runCommand("/usr/local/bin/node",[scriptPath,this.pathToLess,pathToLessJSON])
+        var args = [scriptPath]
+        if(this.pathToBrandLess!='') args.push(this.pathToBrandLess)
+        args.push(this.pathToTokensLess)
+        args.push(pathToLessJSON)
+
+        const runResult = Utils.runCommand("/usr/local/bin/node",args)
 
         if(!runResult.result){
             this.UI.alert('Can not transform LESS file to JSON', runResult.output)
@@ -383,8 +422,8 @@ class DSApp {
         var transform = token['text-transform']
         
         //// SET FONT SIZE
-        if(undefined!=fontSize){          
-            obj.slayer.style.fontSize = parseFloat(fontSize)
+        if(undefined!=fontSize){                      
+            obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
         }
         
         //// SET FONT WEIGHT
