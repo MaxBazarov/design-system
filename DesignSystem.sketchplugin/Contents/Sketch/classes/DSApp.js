@@ -172,17 +172,25 @@ class DSApp {
             // work with token
             var token = tokens[tokenName]
 
+            // skip token without sketch path
+            if(!('sketch' in  token)) continue          
+
             // fill token attribute values from LESS file
+            var ok = true
             for(var attrName of Object.keys(token)){
                 var attrValue= token[attrName]
                 if(''==attrValue || attrValue.indexOf("__")==0) continue
 
                 if(attrValue.indexOf("@")==0){
                     var lessValue = this._getLessVar(attrValue)                            
-                    if(undefined==lessValue) continue
+                    if(undefined==lessValue){
+                        ok = false
+                        continue
+                    }
                     token[attrName] = lessValue               
                 }
             }
+            if(!ok) continue
 
             var sketchPaths = token['sketch']
             if(!Array.isArray(sketchPaths))
