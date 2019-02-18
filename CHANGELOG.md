@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.2.1 (18 Feb 2019)
+- Added missed commits
+
 ##  Version 1.2.0 (18 Feb 2019)
 - Optional Brand Colors replaced by suppor tof "@include" lesscss function
 

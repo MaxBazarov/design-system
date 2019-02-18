@@ -30,9 +30,7 @@ class DSApp {
         // init global variable
         app = this
 
-        // load settings
-        this.pathToBrandLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_BRAND_LESS)
-        if(undefined==this.pathToBrandLess) this.pathToBrandLess = ''        
+        // load settings       
         this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
         if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
         this.pathToSketchStylesJSON = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS)
@@ -88,48 +86,15 @@ class DSApp {
 
 
     _showDialog(){
-        log('1')
-        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 500, 240),"Apply")
+        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 150),"Apply")
 
-        dialog.addTextInput("pathToBrandLess","Path to Brand Colors (LESS file)[Optional]",this.pathToBrandLess,'e.g. ~/Work/brand1.less',450)  
-        dialog.addButton("selectPathToBrandLess","Select",function(){
-          const newPath = Utils.askFilePath(dialog.views['pathToBrandLess'].stringValue()+"")
-          if (newPath != null) {
-            dialog.views['pathToBrandLess'].setStringValue(newPath)
-          }
-          return
-        })
-
-        log('2')
-
-        dialog.addTextInput("pathToTokensLess","Path to UI Tokens (LESS file)",this.pathToTokensLess,'e.g. ~/Work/ui-tokens.less',450)  
-        dialog.addButton("selectPathToTokensLess","Select",function(){
-          const newPath = Utils.askFilePath(dialog.views['pathToTokensLess'].stringValue()+"")
-          if (newPath != null) {
-            dialog.views['pathToTokensLess'].setStringValue(newPath)
-          }
-          return
-        })
-
-
-        log('3')
-
-        dialog.addTextInput("pathToSketchStylesJSON","Path to Sketch Styles (JSON file)",this.pathToSketchStylesJSON,'e.g. ~/Work/sketch-styles.json',450)  
-        dialog.addButton("selectPathToSketchStylesJSON","Select",function(){
-          const newPath = Utils.askFilePath(dialog.views['pathToSketchStylesJSON'].stringValue()+"")
-          if (newPath != null) {
-            dialog.views['pathToSketchStylesJSON'].setStringValue(newPath)
-          }
-          return
-        })
-
-        log('4')
+        dialog.addPathInput("pathToTokensLess","Path to Design Tokens (LESS file)","Select",this.pathToTokensLess,'e.g. ~/Work/ui-tokens.less',550)  
+        dialog.addPathInput("pathToSketchStylesJSON","Path to Sketch Styles (JSON file)","Select",this.pathToSketchStylesJSON,'e.g. ~/Work/sketch-styles.json',550)  
 
         while(true){
             const result = dialog.run()        
             if(!result) return false
     
-            this.pathToBrandLess = dialog.views['pathToBrandLess'].stringValue()+""
             this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
             if(""==this.pathToTokensLess) continue
             this.pathToSketchStylesJSON = dialog.views['pathToSketchStylesJSON'].stringValue()+""
@@ -141,7 +106,6 @@ class DSApp {
     
         dialog.finish()
 
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_BRAND_LESS, this.pathToBrandLess)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS, this.pathToSketchStylesJSON)
 
@@ -150,10 +114,6 @@ class DSApp {
 
     _getTokensText(){
         var tokensStr = ''
-
-        if(this.pathToBrandLess!=''){
-            tokensStr = tokensStr + Utils.readFile(this.pathToBrandLess)
-        }
 
         tokensStr = tokensStr + Utils.readFile(this.pathToTokensLess)
 
@@ -242,7 +202,6 @@ class DSApp {
         // Run less2json 
         const pathToLessJSON = tempFolder + "/nsdata.less.json"
         var args = [scriptPath]
-        if(this.pathToBrandLess!='') args.push(this.pathToBrandLess)
         args.push(this.pathToTokensLess)
         args.push(pathToLessJSON)
 

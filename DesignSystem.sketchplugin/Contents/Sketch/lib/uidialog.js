@@ -14,13 +14,37 @@ class UIAbstractWindow {
     this.rect = intRect
   }
 
+  enableTextByID(id,enabled){
+    if(!(id in dialog.views)) return
+
+    var text = dialog.views[id]
+    if(!enabled)
+        text.textColor = NSColor.disabledControlTextColor()
+    else
+        text.textColor = NSColor.controlTextColor()
+  
+  }
+
+  enableControlByID(id,enabled){
+    var control = dialog.views[id]
+    control.enabled = enabled    
+
+    this.enableTextByID(id+'Hint',enabled)
+    this.enableTextByID(id+'Label',enabled)   
+      
+  }
+
   getNewFrame(height = 25,width=-1,yinc=-1){
     var frame = NSMakeRect(0, this.y - height, width==-1?NSWidth(this.rect)-10:width,height)
     this.y-=height+(yinc>=0?yinc:10)
     return frame
   }
 
-  addLabel(text,height = 25) {    
+  addSpace(){
+      this.getNewFrame(0)
+  }
+
+  addLabel(id,text,height = 25) {    
     const label = NSTextField.alloc().initWithFrame(this.getNewFrame(height));
     label.setStringValue(text);   
     label.setBezeled(false);
@@ -28,6 +52,8 @@ class UIAbstractWindow {
     label.setEditable(false);
     label.setSelectable(false);
     
+    if(''!=id) this.views[id] = label
+
     this.container.addSubview(label)
     this.y+=5
     return label
@@ -48,7 +74,7 @@ class UIAbstractWindow {
   }
 
   addTextBox(id,label,textValue,inlineHint="",height = 120){
-    if(label!='') this.addLabel(label,17)    
+    if(label!='') this.addLabel(id+"Label",label,17)    
 
     const textBox = NSTextField.alloc().initWithFrame(this.getNewFrame(height))
     textBox.setEditable(true)
@@ -64,10 +90,10 @@ class UIAbstractWindow {
     return textBox  
   }
 
-  addTextInput(id,label,textValue,inlineHint="", width=220){
-    if(label!='') this.addLabel(label,17)    
+  addTextInput(id,label,textValue,inlineHint="", width=220,frame=undefined){
+    if(label!='') this.addLabel(id+"Label",label,17)    
 
-    const input = NSTextField.alloc().initWithFrame(this.getNewFrame(20,width))
+    const input = NSTextField.alloc().initWithFrame(frame?frame:this.getNewFrame(20,width))
     input.setEditable(true)
     input.setBordered(true)
     input.setStringValue(textValue)
@@ -82,8 +108,29 @@ class UIAbstractWindow {
   }
 
 
+  addPathInput(id,label,labelSelect,textValue,inlineHint="", width=220,widthSelect=50){
+    if(label!='') this.addLabel(id+"Label",label,17)    
+
+    const frame = this.getNewFrame(20,width-widthSelect-5)
+    const frame2 = Utils.copyRect(frame)
+    frame2.origin.x = frame2.origin.x + width-widthSelect
+    frame2.origin.y -= 8
+
+    const input = this.addTextInput(id,"",textValue,inlineHint,0,frame) 
+
+    this.addButton(id+"Select",labelSelect,function(){
+        const newPath = Utils.askPath(input.stringValue()+"")
+        if (newPath != null) {
+            input.setStringValue(newPath)
+        }
+        return 
+    },0,frame2)
+    return input
+   }
+
+
   addComboBox(id,label,selectItem, options, width=100){
-    if(label!='') this.addLabel(label,15)
+    if(label!='') this.addLabel(id+"Label",label,15)
 
     const v = NSPopUpButton.alloc().initWithFrame(this.getNewFrame(23,width));    
     v.addItemsWithTitles(options)
@@ -96,7 +143,7 @@ class UIAbstractWindow {
 
 
   addRadioButtons(id,label,selectItem, options, width=100){
-    if(label!='') this.addLabel(label,15)
+    if(label!='') this.addLabel(id+"Label",label,15)
     
     // pre-select the first item
     if(selectItem<0) selectItem = 0
@@ -128,9 +175,9 @@ class UIAbstractWindow {
     return group
   } 
 
-  addButton(id,label,func,width=100){
+  addButton(id,label,func,width=100,frame=undefined){
       // create OK button
-    var btn = NSButton.alloc().initWithFrame(this.getNewFrame(20,width)); 
+    var btn = NSButton.alloc().initWithFrame(frame?frame:this.getNewFrame(20,width)); 
     btn.setTitle(label)
     btn.setBezelStyle(NSRoundedBezelStyle)
     btn.sizeToFit()
@@ -142,7 +189,7 @@ class UIAbstractWindow {
 
   }
 
-  addHint(label,height = 30){
+  addHint(id,label,height = 30){
     this.y += 3
 
     const hint = NSTextField.alloc().initWithFrame(this.getNewFrame(height,-1,3));
@@ -155,6 +202,7 @@ class UIAbstractWindow {
     hint.setFont(NSFont.systemFontOfSize(10))
 
     this.container.addSubview(hint)    
+    if(''!=id) this.views[id] = hint
     return hint
   }
 
