@@ -263,8 +263,13 @@ class DSApp {
     _applyFillColor(token, tokenName, obj, color) {
         
         if(color!=""){
-            var opacity = token['fill-color-opacity']
-            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
+            if('transparent'==color){
+                var opacity = "0%"
+                color =  "#FFFFFF" + Utils.opacityToHex(opacity)
+            }else{
+                var opacity = token['fill-color-opacity']
+                if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
+            }
 
             var fill = {
                 color: color,
