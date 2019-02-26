@@ -88,8 +88,17 @@ class DSApp {
     _showDialog(){
         const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 150),"Apply")
 
-        dialog.addPathInput("pathToTokensLess","Path to Design Tokens (LESS file)","Select",this.pathToTokensLess,'e.g. ~/Work/ui-tokens.less',550)  
-        dialog.addPathInput("pathToSketchStylesJSON","Path to Sketch Styles (JSON file)","Select",this.pathToSketchStylesJSON,'e.g. ~/Work/sketch-styles.json',550)  
+        dialog.addPathInput({
+            id:"pathToTokensLess",label:"Path to Design Tokens (LESS file)",labelSelect:"Select",
+            textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
+            width:550,askFilePath:true
+        })  
+        dialog.addPathInput({
+            id:"pathToSketchStylesJSON",label:"Path to Sketch Styles (JSON file)",labelSelect:"Select",
+            textValue:this.pathToSketchStylesJSON,inlineHint:'e.g. ~/Work/sketch-styles.json',
+            width:550,askFilePath:true
+        })
+
 
         while(true){
             const result = dialog.run()        
