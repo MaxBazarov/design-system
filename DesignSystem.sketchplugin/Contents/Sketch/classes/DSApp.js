@@ -403,6 +403,7 @@ class DSApp {
             var weights = {
                 'regular':5,
                 'semi-bold':8,
+                'semibold':8,
                 'bold':9
             }
 
