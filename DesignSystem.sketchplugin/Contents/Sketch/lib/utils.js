@@ -88,6 +88,46 @@ class Utils {
             }
         }
     }
+   
+    static RGBAToHexA(rgba) {
+        if(rgba.startsWith('#')) return rgba
+
+        let sep = rgba.indexOf(",") > -1 ? "," : " ";
+        rgba = rgba.substr(5).split(")")[0].split(sep);
+
+        // Strip the slash if using space-separated syntax
+        if (rgba.indexOf("/") > -1)
+            rgba.splice(3, 1);
+
+        for (let R in rgba) {
+            let r = rgba[R];
+            if (r.indexOf("%") > -1) {
+                let p = r.substr(0, r.length - 1) / 100;
+
+                if (R < 3) {
+                    rgba[R] = Math.round(p * 255);
+                } else {
+                    rgba[R] = p;
+                }
+            }
+        }
+
+        let r = (+rgba[0]).toString(16),
+            g = (+rgba[1]).toString(16),
+            b = (+rgba[2]).toString(16),
+            a = Math.round(+rgba[3] * 255).toString(16);
+
+        if (r.length == 1)
+            r = "0" + r;
+        if (g.length == 1)
+            g = "0" + g;
+        if (b.length == 1)
+            b = "0" + b;
+        if (a.length == 1)
+            a = "0" + a;
+
+        return "#" + r + g + b + a;
+    }
 
 
     // s:  "0 4px 16px 0 #000000"
@@ -97,13 +137,15 @@ class Utils {
             return parseInt(s)
         }
 
+        src = src.replace(/, /gi,',') // clean up rgba(a, b, c, d) 
+        
         var items = src.split(' ')
         return {
             'x': pxFunc(items[0]),
             'y': pxFunc(items[1]),
             'blur': pxFunc(items[2]),
             'spread': items.length>3?pxFunc(items[3]):0,
-            'color' : items.length>4?items[4]:"#000000"
+            'color' : items.length>4?Utils.RGBAToHexA(items[4]):"#000000"
         }        
     }
 

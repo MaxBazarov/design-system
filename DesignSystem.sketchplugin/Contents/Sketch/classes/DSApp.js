@@ -294,10 +294,12 @@ class DSApp {
     }
  
 
-    _applyShadow(token, tokenName, obj, shadow) {
+    _applyShadow(token, tokenName, obj, shadowCSS) {
         
-        if(shadow!=""){
-            var shadow = Utils.splitCSSShadow(shadow)            
+        if(shadowCSS!=""){
+            var shadow = Utils.splitCSSShadow(shadowCSS)    
+            log('css:'+shadowCSS)        
+            log(shadow)
             shadow.enabled = true
             shadow.type = 'Shadow'
             obj.slayer.style.shadows = [shadow]
@@ -334,36 +336,41 @@ class DSApp {
         var border = {
         }
         
-        // process color
-        if(('border-color' in token)){
-            var color = token['border-color']
-            var opacity = token['border-color-opacity']
-            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
-            border.color = color        
-        }
+        if(('border-color' in token) && ''==token['border-color']){
+            border = undefined
+        }else{
 
-        // process width
-        if('border-width' in token){
-            border.thickness = token['border-width']
-        }
-
-         // process position
-        if('border-position' in token){
-            var conversion = {
-                'center':     Style.BorderPosition.Center,
-                'inside':     Style.BorderPosition.Inside,
-                'outside':    Style.BorderPosition.Outside
-            }
-            if( !(token['border-position'] in conversion) ){
-                return this.logError('Wrong border-position for token: '+tokenName)
+            // process color
+            if(('border-color' in token)){
+                var color = token['border-color']
+                var opacity = token['border-color-opacity']
+                if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
+                border.color = color        
             }
 
-            border.position = conversion[ token['border-position'] ]
+            // process width
+            if('border-width' in token){
+                border.thickness = token['border-width']
+            }
+
+            // process position
+            if('border-position' in token){
+                var conversion = {
+                    'center':     Style.BorderPosition.Center,
+                    'inside':     Style.BorderPosition.Inside,
+                    'outside':    Style.BorderPosition.Outside
+                }
+                if( !(token['border-position'] in conversion) ){
+                    return this.logError('Wrong border-position for token: '+tokenName)
+                }
+
+                border.position = conversion[ token['border-position'] ]
+            }
         }
        
        
         // save new border in style
-        obj.slayer.style.borders = [border]
+        obj.slayer.style.borders = border?[border]:[]
 
 
         return this._syncSharedStyle(tokenName,obj)
