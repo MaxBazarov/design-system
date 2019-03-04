@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.2.2 (4 Mar 2019)
+- Fixed shadow color detection
+
 ##  Version 1.2.1 (18 Feb 2019)
 - Added missed commits
 
