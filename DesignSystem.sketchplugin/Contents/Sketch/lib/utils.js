@@ -131,6 +131,8 @@ class Utils {
 
 
     // s:  "0 4px 16px 0 #000000"
+    //  or 
+    // s:  "0 4px 16px #000000"
     static splitCSSShadow(src){
         var pxFunc = function(s){
             s = s.replace('px','')
@@ -138,14 +140,17 @@ class Utils {
         }
 
         src = src.replace(/, /gi,',') // clean up rgba(a, b, c, d) 
-        
         var items = src.split(' ')
+
+        var spread = items.length>4?pxFunc(items[3]):0
+        var color =  Utils.RGBAToHexA( items[ items.length-1 ])
+
         return {
             'x': pxFunc(items[0]),
             'y': pxFunc(items[1]),
             'blur': pxFunc(items[2]),
-            'spread': items.length>3?pxFunc(items[3]):0,
-            'color' : items.length>4?Utils.RGBAToHexA(items[4]):"#000000"
+            'spread': spread,
+            'color' : color
         }        
     }
 
