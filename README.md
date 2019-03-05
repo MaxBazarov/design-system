@@ -39,6 +39,7 @@ Shape Layers:
 "fill-color-opacity":    "63%", // "63%" or "0.42"
 "border-color":          "#000000",
 "border-width":          "2", //px
+"border-position":       "center", // center or inside or outside
 "shape-radius":          "5", //px
 "shadow":                "0 10px 20px 2 #00000033",
 ```
