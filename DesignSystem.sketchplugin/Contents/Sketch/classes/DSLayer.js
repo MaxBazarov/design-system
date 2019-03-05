@@ -37,6 +37,7 @@ class DSLayer {
         this.customLink = undefined
 
         if(nlayer.isKindOfClass(MSLayerGroup)) this.isGroup = true
+        if(nlayer.isKindOfClass(MSSymbolMaster)) this.isGroup = true
         if(nlayer.isKindOfClass(MSSymbolInstance)){
             this.isSymbolInstance = true
             this.symbolMaster = nlayer.symbolMaster()

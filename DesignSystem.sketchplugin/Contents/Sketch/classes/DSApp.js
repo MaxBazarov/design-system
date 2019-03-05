@@ -232,9 +232,41 @@ class DSApp {
     }
 
     _getObjByPath(objPath){
-        var names = objPath.split('/')
-        var objects = this.pages
+        var objects = undefined        
+
+        const symbSeparator = '///'
+        if(objPath.indexOf(symbSeparator)>0){
+            // search in Page //// Symbol //// Layer / Layer
+            const top = objPath.split(symbSeparator)
+            if(top.length!=3){
+                this.logError("Wrong format of sketch symbol path. Should be Page///Symbol///Layer/Layer")
+                return undefined
+            }
+            const pageName = top[0]
+            const symbolName = top[1]
+            const layerPath = top[2]
+
+            if(!(pageName in this.pages)){
+                this.logError("Failed to find page with name '"+pageName+"'")
+                return undefined
+            }
+            const page = this.pages[pageName]        
+            if(!(symbolName in page.childs)){
+                this.logError("Failed to find symbol with name '"+symbolName+"' in page '"+pageName+"'")
+                return undefined
+            }    
+            const symbolObj = page.childs[symbolName]            
+            objects = symbolObj.childs
+            objPath = layerPath
+        }else{            
+            objects = this.pages
+        }
+
+        log(objPath)
+        var names = objPath.split('/') 
         var obj = undefined
+        log(names)
+        log(objects[0])
         for(var objName of names){
             obj = objects[objName]
             if(undefined==obj) break
