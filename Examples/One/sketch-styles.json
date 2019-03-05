@@ -6,17 +6,17 @@
         "font-weight":           "bold",
         "text-transform":        "uppercase",
         "sketch": [
-            "Styles/Controls/Buttons/Submit/Ok/Text",
-            "Styles/Controls/Buttons/Submit/Cancel/Text"
+                                "Styles/Controls/Buttons/Submit/Ok/Text",
+                                "Styles/Controls/Buttons/Submit/Cancel/Text"
         ]
     },
     "@btn-submit-border":{
-        "description":           "Common border styles for all submit buttons",
-        "shape-radius":           "@radius-medium",        
+        "description":          "Common border styles for all submit buttons, REQUIRE PATH TO SYMBOL INTERNAL LAYERS, NOT STYLES",
+        "shape-radius":         "@radius-medium",        
         "sketch": [
-            "Styles/Controls/Buttons/Submit/Ok/Back",
-            "Styles/Controls/Buttons/Submit/Cancel/Back",
-            "Styles/Controls/Buttons/Submit/Disabled/Back"
+                                "Controls///Controls / Buttons / Submit / Ok///Back",
+                                "Controls///Controls / Buttons / Submit / Cancel///Back",
+                                "Controls///Controls / Buttons / Submit / Disabled///Back"
         ]
     },
     "@btn-submit-ok-text":{
