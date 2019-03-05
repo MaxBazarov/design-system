@@ -1,5 +1,5 @@
 # design-system
-Sketch.app plugin to apply UI tokens and LESS styles to Sketch styles
+Sketch.app plugin to apply design tokens (specified in LESS format) to Sketch layers (with shared styles)
 
 ## Installation
 1. Download [Design System plugin](https://github.com/MaxBazarov/design-system/raw/master/DesignSystem.sketchplugin.zip)
@@ -15,11 +15,11 @@ npm i less -g
 1. Download [example](https://github.com/MaxBazarov/design-system/raw/master/Examples/One.zip) and unarchive it into some local folder.
 2. Open Widget Library.sketch file in Sketch.app
 3. Run Plugins > Design System > Apply Design Tokens menu command
-4. Specify JSON and LESS files according to screenshot
+4. Specify LESS and JSON  files according to screenshot
 
 <img width="755" height="538" src="https://raw.githubusercontent.com/MaxBazarov/design-system/master/Examples/One/Illustration.png"/>
 
-5. Repeat the same operation, but select another less file. See how styles and widgets look now.
+5. Repeat the same operation, but select "tokens-blue.less" file. See how styles and widgets look now.
 
 
 ## Features
@@ -42,7 +42,7 @@ Shape Layers:
 "border-position":       "center", // center or inside or outside
 "shape-radius":          "5", //px !!ATTENTION!! Shared styles don't include Radius, 
                               // so you need to apply it on layers or symbols directly
-"shadow":                "0 10px 20px 2 #00000033",
+"shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
 ```
 
 ## Requirements
