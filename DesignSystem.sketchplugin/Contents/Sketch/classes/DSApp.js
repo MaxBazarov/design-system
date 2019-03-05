@@ -1,7 +1,7 @@
 @import("constants.js")
 @import("lib/utils.js")
 @import("lib/uidialog.js")
-@import("classes/DSArtboard.js")
+@import("classes/DSLayerCollector.js")
 
 var app = undefined
 var Settings = require('sketch/settings')
@@ -16,14 +16,7 @@ class DSApp {
         
         this.pages = {}
 
-        this.myLayers = []
-        this.artboardGroups = []
-        this.symDict = {}
-
         this.less = undefined
-
-        this.pagesDict = []
-        this.pageIDsDict = []
     
         this.errors = []
 
@@ -60,6 +53,13 @@ class DSApp {
         UI.alert('Error', error)
         exit = true
     }
+
+  
+    _initPages() {
+        const layerCollector  = new DSLayerCollector() 
+        this.pages = layerCollector.collectPages()
+    }
+
 
     // Public methods
 
@@ -265,8 +265,6 @@ class DSApp {
         log(objPath)
         var names = objPath.split('/') 
         var obj = undefined
-        log(names)
-        log(objects[0])
         for(var objName of names){
             obj = objects[objName]
             if(undefined==obj) break
@@ -485,27 +483,5 @@ class DSApp {
         return this._syncSharedStyle(tokenName,obj)
 
     }
-
-    
-    _initPages() {
-        const layerCollector  = new DSLayerCollector() 
-
-        this.doc.pages().forEach(function (page) {
-            let sartboards = DSArtboard.getArtboardGroupsInPage(page, this.context, false)
-            if (!sartboards.length) return
-
-            log("_initPages: page="+page.name())
-
-            let artboards = layerCollector.collectArtboardsLayers(" ",sartboards)
-
-            this.pages[page.name()] = {
-                name: page.name(),
-                childs: artboards
-            } 
-
-        }, this)
-
-    }
-
 
 }
