@@ -187,8 +187,10 @@ class DSApp {
                     this._applyTextStyle(token,tokenName,sketchObj)               
                 if('fill-color' in token)
                     this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
-                 if('shadow' in token)
-                    this._applyShadow(token,tokenName,sketchObj,token['shadow'])
+                if('shadow' in token)
+                   this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
+                if('inner-shadow' in token)
+                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])
                 if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
                     this._applyBorderStyle(token,tokenName,sketchObj)                        
                 if('shape-radius' in token)
@@ -294,18 +296,24 @@ class DSApp {
     }
  
 
-    _applyShadow(token, tokenName, obj, shadowCSS) {
+    _applyShadow(token, tokenName, obj, isInner, shadowCSS) {
         
+        var shadows = []
         if(shadowCSS!=""){
             var shadow = Utils.splitCSSShadow(shadowCSS)    
             log('css:'+shadowCSS)        
             log(shadow)
             shadow.enabled = true
             shadow.type = 'Shadow'
-            obj.slayer.style.shadows = [shadow]
+            shadows = [shadow]
         }else{
-            obj.slayer.style.shadows = []
+           //obj.slayer.style.shadows = []
         }
+
+        if(isInner)
+            obj.slayer.style.innerShadows = shadows
+        else   
+            obj.slayer.style.shadows = shadows
 
         return this._syncSharedStyle(tokenName,obj)        
     }
