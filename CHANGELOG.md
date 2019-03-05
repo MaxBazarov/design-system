@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.3.0 (5 Mar 2019)
+- Supported "sketch:" values in new format: "Artboard///Symbol Name///Internal Layer
+
 ##  Version 1.2.2 (4 Mar 2019)
 - Fixed shadow color detection
 
