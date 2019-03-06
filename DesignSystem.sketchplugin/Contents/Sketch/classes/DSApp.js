@@ -365,7 +365,8 @@ class DSApp {
             //obj.slayer.style.shadows = []
         }
 
-        return this._syncSharedStyle(tokenName,obj)        
+        //return this._syncSharedStyle(tokenName,obj)        
+        return true // we don't need to sync changes with shared style here
     } 
 
 
