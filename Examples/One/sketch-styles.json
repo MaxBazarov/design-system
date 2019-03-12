@@ -16,7 +16,7 @@
         "sketch": [
                                 "Controls///Controls / Buttons / Submit / Ok///Back",
                                 "Controls///Controls / Buttons / Submit / Cancel///Back",
-                                "Controls///Controls / Buttons / Submit / Disabled///Back"
+                                "Controls///Controls / Buttons / Submit / Disabled///Group/Back"
         ]
     },
     "@btn-submit-ok-text":{
