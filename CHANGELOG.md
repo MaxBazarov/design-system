@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.3.1 (13 Mar 2019)
+- fixed broken path for @import
+
 ##  Version 1.3.0 (5 Mar 2019)
 - Supported "sketch:" values in new format: "Artboard///Symbol Name///Internal Layer
 

@@ -37,7 +37,6 @@ function loadLessVars(fileName1,fileName2){
     }
 
     options1 = { 
-        filename: '/Users/baza/Ingram/Themes/cloudblue/design-tokens/cloudblue-design-tokens.less',
         async: false,
         fileAsync: false
     }
