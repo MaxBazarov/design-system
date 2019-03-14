@@ -150,7 +150,22 @@ class DSApp {
                 var attrValue= token[attrName]
                 if(''==attrValue || attrValue.indexOf("__")==0) continue
 
-                if(attrValue.indexOf("@")==0){
+                if(attrValue.indexOf(";")>=0){
+                    // transform "@radius;@radius;0;0"
+                    var lessValue = []
+                    for(var elem of attrValue.split(';')){
+                        if(elem.indexOf("@")==0){
+                            elem = this._getLessVar(elem)                            
+                            if(undefined==elem){
+                                ok = false
+                                continue
+                            }                                                 
+                        }
+                        lessValue.push(elem)
+                    }
+                    if(!ok) continue
+                    token[attrName] = lessValue
+                }else if(attrValue.indexOf("@")==0){
                     var lessValue = this._getLessVar(attrValue)                            
                     if(undefined==lessValue){
                         ok = false
@@ -352,17 +367,17 @@ class DSApp {
         
         var radius = token['shape-radius']
 
-        if(radius!=""){                   
-            obj.nlayer.children().forEach(function(e){
-                if(e.class() == 'MSRectangleShape') {
-                    log(e)
-                    e.cornerRadiusFloat = parseFloat(radius)
+        if(radius!=""){               
+            const points =  obj.slayer.points    
+            if(Array.isArray(radius)){                
+                for (let x=0; x < points.length; ++x ) {
+                    points[x].cornerRadius =  parseFloat(radius[x])
                 }
-            });
-
-            //obj.slayer.style.borderOptions = [shadow]
-        }else{
-            //obj.slayer.style.shadows = []
+            }else{
+                for (let x=0; x < points.length; ++x ) {
+                    points[x].cornerRadius =  parseFloat(radius)
+                }
+            }
         }
 
         //return this._syncSharedStyle(tokenName,obj)        

@@ -42,6 +42,7 @@ Shape Layers:
 "border-position":       "center", // center or inside or outside
 "shape-radius":          "5", //px !!ATTENTION!! Shared styles don't include Radius, 
                               // so you need to apply it on layers or symbols directly
+"shape-radius":          "5;5;0;0",
 "shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
 ```
 

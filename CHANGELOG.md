@@ -1,5 +1,9 @@
 # Change Log
 
+##  Version 1.4.1 (14 Mar 2019)
+- Support for comples radius, such as "@radius;@radius;0;0"
+
+
 ##  Version 1.3.1 (13 Mar 2019)
 - fixed broken path for @import
 
