@@ -210,7 +210,8 @@ class DSApp {
                     this._applyBorderStyle(token,tokenName,sketchObj)                        
                 if('shape-radius' in token)
                     this._applyShapeRadius(token,tokenName,sketchObj)
-
+                if('image' in token)
+                    this._applyImage(token,tokenName,sketchObj)
             }
 
         }
@@ -384,6 +385,21 @@ class DSApp {
         return true // we don't need to sync changes with shared style here
     } 
 
+
+    _applyImage(token, tokenName, obj) {        
+        var image = token['image']
+
+        if(image!=""){          
+            if('transparent'==image){                
+                obj.slayer.style.opacity = 0
+            }else{
+
+            }            
+        }
+
+        //return this._syncSharedStyle(tokenName,obj)        
+        return true // we don't need to sync changes with shared style here
+    } 
 
     _applyBorderStyle(token,tokenName, obj){
         
