@@ -6,6 +6,7 @@
 var app = undefined
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
+var Image = require('sketch/dom').Image
 
 
 class DSApp {
@@ -347,8 +348,6 @@ class DSApp {
         var shadows = []
         if(shadowCSS!=""){
             var shadow = Utils.splitCSSShadow(shadowCSS)    
-            log('css:'+shadowCSS)        
-            log(shadow)
             shadow.enabled = true
             shadow.type = 'Shadow'
             shadows = [shadow]
@@ -393,7 +392,40 @@ class DSApp {
             if('transparent'==image){                
                 obj.slayer.style.opacity = 0
             }else{
+                let path = '/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
+                var fileManager = [NSFileManager defaultManager];
+                if (! [fileManager fileExistsAtPath: path]) {
+                    return this.logError('Image not found on path: '+path)
+                }
 
+                let parent = obj.slayer.parent
+                let frame = new Rectangle(obj.slayer.frame)                
+                obj.slayer.remove()
+
+                let simage =  new Image({
+                    frame:frame,
+                    name:obj.name,
+                    image: path
+                  })
+                parent.layers.push(simage)
+                
+                obj.slayer = simage
+                obj.nlayer = image.sketchObject
+                
+                obj.slayer.frame.width  = simage.image.nsimage.size().width / 2
+                obj.slayer.frame.height  = simage.image.nsimage.size().height / 2  
+
+                /*
+                let image = [[NSImage alloc] initWithContentsOfFile:path];
+                obj.slayer.image = image                
+                obj.slayer.style.opacity = 1
+                if(path.includes('@2x')){
+                    obj.slayer.frame.width  = image.size().width  / 2
+                    obj.slayer.frame.height  = image.size().height / 2  
+                }else{
+                    obj.slayer.frame.width  = image.size().width
+                    obj.slayer.frame.height  = image.size().height    
+                }*/
             }            
         }
 
