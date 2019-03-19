@@ -66,6 +66,7 @@ class DSApp {
 
     run() {
         if(!this._showDialog()) return false
+        this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
 
         this._initPages()
 
@@ -118,6 +119,7 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS, this.pathToSketchStylesJSON)
+    
 
         return true
     }
@@ -386,13 +388,14 @@ class DSApp {
 
 
     _applyImage(token, tokenName, obj) {        
-        var image = token['image']
+        var imageName = token['image']
 
-        if(image!=""){          
-            if('transparent'==image){                
+        if(imageName!=""){          
+            if('transparent'==imageName){                
                 obj.slayer.style.opacity = 0
             }else{
-                let path = '/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
+                let path = this.pathToTokens + "/" + imageName
+                //'/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
                 var fileManager = [NSFileManager defaultManager];
                 if (! [fileManager fileExistsAtPath: path]) {
                     return this.logError('Image not found on path: '+path)
@@ -410,10 +413,10 @@ class DSApp {
                 parent.layers.push(simage)
                 
                 obj.slayer = simage
-                obj.nlayer = image.sketchObject
+                obj.nlayer = simage.sketchObject
                 
-                obj.slayer.frame.width  = simage.image.nsimage.size().width / 2
-                obj.slayer.frame.height  = simage.image.nsimage.size().height / 2  
+                obj.slayer.frame.width  = simage.image.nsimage.size().width / 4
+                obj.slayer.frame.height  = simage.image.nsimage.size().height / 4
 
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
