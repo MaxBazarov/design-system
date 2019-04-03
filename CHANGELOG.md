@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.6.0 (3 Apr 2019)
+- Added fill-gradient-type, fill-color-from and fill-color-to rules
+
 ##  Version 1.5.1 (19 Mar 2019)
 - Added "image" rule
 

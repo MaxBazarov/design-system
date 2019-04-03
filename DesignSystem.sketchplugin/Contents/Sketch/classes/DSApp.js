@@ -183,12 +183,6 @@ class DSApp {
             if(!Array.isArray(sketchPaths))
                 sketchPaths = [sketchPaths]
 
-            var ignoreAttribs = {
-                "sketch": true,
-                "text-color-opacity":true,
-                "fill-color-opacity":true,
-            }
-
             for(var sketchPath of sketchPaths){
                 if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
                 var sketchObj = this._getObjByPath(sketchPath)
@@ -205,6 +199,8 @@ class DSApp {
                     this._applyTextStyle(token,tokenName,sketchObj)               
                 if('fill-color' in token)
                     this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
+                if('fill-from-color' in token)
+                    this._applyFillGradient(token,tokenName,sketchObj)
                 if('shadow' in token)
                    this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
                 if('inner-shadow' in token)
@@ -343,7 +339,52 @@ class DSApp {
 
         return this._syncSharedStyle(tokenName,obj)        
     }
+
+
+    _applyFillGradient(token, tokenName, obj) {
+        var colorFrom = this._applyFillGradientProcessColor(token,'from')
+        var colorTo = this._applyFillGradientProcessColor(token,'to')
+    
+        const gradientTypes={
+            'linear':       Style.GradientType.Linear,
+            'radial':       Style.GradientType.Radial,
+            'angular':      Style.GradientType.Angular
+        }
+
+        const gradientTypeSrc = 'fill-gradient-type' in token?token['fill-gradient-type']:'linear'
+        if(!(gradientTypeSrc in gradientTypes)){
+            return this.logError('Uknown gradient type: '+gradientTypeSrc)
+        }
+
+        var fill = {
+            fill: Style.FillType.Gradient,
+            gradient: {
+                gradientType:  gradientTypes[gradientTypeSrc],
+                from: { x: 0.5, y: 0},
+                to: { x: 0.5, y: 1},
+                stops:[
+                    { color: colorFrom, position: 0},
+                    { color: colorTo, position: 1}
+                ]
+            }
+        }
+        obj.slayer.style.fills = [fill]
+
+        return this._syncSharedStyle(tokenName,obj)        
+    }
  
+    _applyFillGradientProcessColor(token,colorType){
+        var color = token['fill-'+colorType+'-color']
+        var opacity = token['fill-'+colorType+'-color-opacity']
+
+        if('transparent'==color){
+            var opacity = "0%"
+            color =  "#FFFFFF" + Utils.opacityToHex(opacity)
+        }else{
+            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
+        }
+        return color
+    }
 
     _applyShadow(token, tokenName, obj, isInner, shadowCSS) {
         
@@ -402,7 +443,8 @@ class DSApp {
                 }
 
                 let parent = obj.slayer.parent
-                let frame = new Rectangle(obj.slayer.frame)                
+                let frame = new Rectangle(obj.slayer.frame)
+                let oldConstraints =   obj.nlayer.resizingConstraint()
                 obj.slayer.remove()
 
                 let simage =  new Image({
@@ -417,6 +459,8 @@ class DSApp {
                 
                 obj.slayer.frame.width  = simage.image.nsimage.size().width / 4
                 obj.slayer.frame.height  = simage.image.nsimage.size().height / 4
+
+                obj.nlayer.resizingConstraint = oldConstraints
 
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
