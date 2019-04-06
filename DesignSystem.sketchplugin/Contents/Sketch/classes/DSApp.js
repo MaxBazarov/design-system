@@ -557,12 +557,18 @@ class DSApp {
         var color = token['text-color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
+        var lineHeight = token['line-height']
         
         //// SET FONT SIZE
         if(undefined!=fontSize){                      
             obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
+        }        
+        //// SET LINE HEIGHT
+        if(undefined!=lineHeight){                      
+            obj.slayer.style.lineHeight = Math.round(parseFloat(lineHeight) * obj.slayer.style.fontSize)
+        }else{
+            //obj.slayer.style.lineHeight = null
         }
-        
         //// SET FONT WEIGHT
         if(undefined!=fontWeight){
             var weights = {

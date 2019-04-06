@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.7.0 (6 Apr 2019)
+- Added line-height rule
+
 ##  Version 1.6.0 (3 Apr 2019)
 - Added fill-gradient-type, fill-color-from and fill-color-to rules
 
