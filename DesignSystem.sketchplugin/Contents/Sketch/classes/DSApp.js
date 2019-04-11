@@ -554,6 +554,7 @@ class DSApp {
     _applyTextStyle(token,tokenName, obj){
         // read token attribues
         var fontSize = token['font-size']
+        var fontFace = token['font-face']
         var color = token['text-color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
@@ -563,6 +564,14 @@ class DSApp {
         if(undefined!=fontSize){                      
             obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
         }        
+        //// SET FONT SIZE
+        if(undefined!=fontFace){  
+            let firstFont = fontFace.split(',')[0]
+            firstFont = firstFont.replace(/[""]/gi,'')
+            log(firstFont)
+            obj.slayer.style.fontFamily = firstFont
+            log(obj.slayer.style.fontFamily)
+        }           
         //// SET LINE HEIGHT
         if(undefined!=lineHeight){                      
             obj.slayer.style.lineHeight = Math.round(parseFloat(lineHeight) * obj.slayer.style.fontSize)
