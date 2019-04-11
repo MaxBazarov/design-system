@@ -194,7 +194,7 @@ class DSApp {
                 // Apply Styles
                 if(
                     ('font-size' in token) || ('text-color' in token)
-                    || ('font-weight' in token) || ('text-transform' in token)
+                    || ('font-weight' in token) || ('text-transform' in token) || ('font-face' in token)
                 )
                     this._applyTextStyle(token,tokenName,sketchObj)               
                 if('fill-color' in token)
