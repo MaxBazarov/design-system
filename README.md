@@ -28,6 +28,7 @@ The following styles are supporting.
 Text Layers:
 -----------------------------------------
 "font-size":             "12.0",   
+"font-face":             "Open Sans" // or ""Opeb Sans","Times New Roman"
 "font-weight":           "bold", // "bold" or "regular" or "semibold"
 "line-height":           "1.0", // or 1.2 or 1.5 or any other mulitplier for font-size
 "text-color":            "#FFFFFF"

@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.8.0 (6 Apr 2019)
+- Added font-face rule
+
 ##  Version 1.7.0 (6 Apr 2019)
 - Added line-height rule
 

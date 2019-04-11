@@ -568,9 +568,8 @@ class DSApp {
         if(undefined!=fontFace){  
             let firstFont = fontFace.split(',')[0]
             firstFont = firstFont.replace(/[""]/gi,'')
-            log(firstFont)
             obj.slayer.style.fontFamily = firstFont
-            log(obj.slayer.style.fontFamily)
+            log('firstFont:'+firstFont)
         }           
         //// SET LINE HEIGHT
         if(undefined!=lineHeight){                      
