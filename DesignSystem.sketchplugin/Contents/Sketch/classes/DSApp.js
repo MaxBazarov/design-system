@@ -389,7 +389,7 @@ class DSApp {
     _applyShadow(token, tokenName, obj, isInner, shadowCSS) {
         
         var shadows = []
-        if(shadowCSS!=""){
+        if(shadowCSS!="" && shadowCSS!="none"){
             var shadow = Utils.splitCSSShadow(shadowCSS)    
             shadow.enabled = true
             shadow.type = 'Shadow'
