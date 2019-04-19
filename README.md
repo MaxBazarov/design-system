@@ -54,6 +54,7 @@ Shape Layers:
                               // so you need to apply it on layers or symbols directly
 "shape-radius":          "5;5;0;0",
 "shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
+"inner-shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
 ```
 
 ## Requirements
