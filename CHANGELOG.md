@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.9.0 (13 May 2019)
+- Added more font-weight options: "extra-light", "light", "regular", "medium", "semibold", "bold"
+
 ##  Version 1.8.0 (6 Apr 2019)
 - Added font-face rule
 

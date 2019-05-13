@@ -580,9 +580,11 @@ class DSApp {
         //// SET FONT WEIGHT
         if(undefined!=fontWeight){
             var weights = {
+                'extra-light':3,
+                'light':4,                
                 'regular':5,
+                'medium':6,
                 'semi-bold':8,
-                'semibold':8,
                 'bold':9
             }
 
@@ -590,6 +592,7 @@ class DSApp {
                 return this.logError('Wrong font weight for token: '+tokenName)
             }
             
+            //log('obj.slayer.style.fontWeight='+obj.slayer.style.fontWeight)
             obj.slayer.style.fontWeight = weights[fontWeight]
         }
 
