@@ -6,9 +6,9 @@
         <description>Design System</description>
         <language>en</language>
          <item>
-            <title>Version 1.9.0</title>
-            <date>13 May 2019</date>
-            <enclosure url="https://github.com/MaxBazarov/design-system/raw/master/DesignSystem.sketchplugin.zip" sparkle:version="1.9.0"/>
+            <title>Version 1.10.0</title>
+            <date>23 May 2019</date>
+            <enclosure url="https://github.com/MaxBazarov/design-system/raw/master/DesignSystem.sketchplugin.zip" sparkle:version="1.10.0"/>
         </item> 
         
     </channel>

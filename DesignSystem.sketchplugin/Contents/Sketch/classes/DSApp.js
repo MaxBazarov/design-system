@@ -295,9 +295,16 @@ class DSApp {
 
     _syncSharedStyle(tokenName,obj){
         if(!obj.slayer.sharedStyle){
-            return this.logError('No shared style for some of "'+tokenName+'" styles')
+            //return this.logError('No shared style for some of "'+tokenName+'" styles')
+            var SharedStyle = require('sketch/dom').SharedStyle
+            obj.slayer.sharedStyle = SharedStyle.fromStyle({
+                name:       tokenName,
+                style:      obj.slayer.style,
+                document:   this.doc
+              })
+        }else{
+            obj.slayer.sharedStyle.style = obj.slayer.style
         }
-        obj.slayer.sharedStyle.style = obj.slayer.style
         obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
         return true
     }

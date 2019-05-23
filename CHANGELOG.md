@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.10.0 (23 May 2019)
+- Now the plugin creates new shared style if it's existing
+
 ##  Version 1.9.0 (13 May 2019)
 - Added more font-weight options: "extra-light", "light", "regular", "medium", "semibold", "bold"
 
