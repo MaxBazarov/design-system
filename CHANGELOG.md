@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 1.10.1 (5 Jun 2019)
+- Added "semi-bold" font weight (nickname of "semibold")
+
 ##  Version 1.10.0 (23 May 2019)
 - Now the plugin creates new shared style if it's existing
 
