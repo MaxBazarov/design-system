@@ -592,6 +592,7 @@ class DSApp {
                 'regular':5,
                 'medium':6,
                 'semi-bold':8,
+                'semibold':8,
                 'bold':9
             }
 
