@@ -75,6 +75,7 @@ class DSApp {
 
         if( !this.loadLess()) return false        
         if( !this._applyLess() ) return false
+        this._saveSymbolTokens()
 
         // show final message
         if(this.errors.length>0){
@@ -82,13 +83,18 @@ class DSApp {
         }else{
             this.UI.message('Tokens applied')
         }
-
-        log( this.symbols )
-
+    
         return true
     }
 
     // Internal
+
+
+    _saveSymbolTokens(){
+        const pathToRules = this.pathToSketchStylesJSON.substring(0, this.pathToSketchStylesJSON.lastIndexOf("/")) + "/" + Constants.SYMBOLTOKENFILE_NAME        
+        const json = JSON.stringify(this.symbols,null,4)
+        Utils.writeToFile(json, pathToRules)
+    }
 
 
     _showDialog(){

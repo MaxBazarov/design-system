@@ -5,6 +5,7 @@ var Constants = {
   LAYER_LOGGING: false,
   LOGGING: true,  
   RESOURCES_FOLDER: "scripts",
+  SYMBOLTOKENFILE_NAME: "currentskin-symboltokens.json"
 };
 
 var SettingKeys = {
