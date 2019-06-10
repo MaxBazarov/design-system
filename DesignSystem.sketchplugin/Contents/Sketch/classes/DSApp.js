@@ -350,13 +350,22 @@ class DSApp {
             symbolInfo = this.symbols[ symbolLayer.name ]
         }else{
             symbolInfo = {
-                tokens: {}
+                layers:{}             
             }
             this.symbols[ symbolLayer.name ] = symbolInfo
         }
 
         for(var tokenName of Object.keys(token.__lessTokens)){
-            symbolInfo.tokens[tokenName] = true
+            var layerInfo = null
+            if(slayer.name in symbolInfo.layers){
+                layerInfo =  symbolInfo.layers[slayer.name]                 
+            }else{
+                layerInfo = {
+                    tokens: {}
+                }
+                symbolInfo.layers[slayer.name] = layerInfo
+            }
+            layerInfo.tokens[tokenName] = true
         }
 
         return true
