@@ -4,6 +4,7 @@
 @import("classes/DSLayerCollector.js")
 
 var app = undefined
+var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
@@ -16,6 +17,7 @@ class DSApp {
         this.UI = require('sketch/ui')
         
         this.pages = {}
+        this.symbols = {}
 
         this.less = undefined
     
@@ -80,6 +82,8 @@ class DSApp {
         }else{
             this.UI.message('Tokens applied')
         }
+
+        log( this.symbols )
 
         return true
     }
@@ -148,8 +152,11 @@ class DSApp {
             if(!('sketch' in  token)) continue          
 
             // fill token attribute values from LESS file
+            token.__lessTokens = {}
             var ok = true
             for(var attrName of Object.keys(token)){
+                if(attrName.indexOf("__")==0) continue
+
                 var attrValue= token[attrName]
                 if(''==attrValue || attrValue.indexOf("__")==0) continue
 
@@ -158,23 +165,25 @@ class DSApp {
                     var lessValue = []
                     for(var elem of attrValue.split(';')){
                         if(elem.indexOf("@")==0){
+                            token.__lessTokens[elem] = true
                             elem = this._getLessVar(elem)                            
                             if(undefined==elem){
                                 ok = false
                                 continue
                             }                                                 
-                        }
+                        }                        
                         lessValue.push(elem)
                     }
                     if(!ok) continue
                     token[attrName] = lessValue
                 }else if(attrValue.indexOf("@")==0){
+                    token.__lessTokens[attrValue] = true
                     var lessValue = this._getLessVar(attrValue)                            
                     if(undefined==lessValue){
                         ok = false
                         continue
                     }
-                    token[attrName] = lessValue               
+                    token[attrName] = lessValue
                 }
             }
             if(!ok) continue
@@ -293,7 +302,7 @@ class DSApp {
         return obj
     }
 
-    _syncSharedStyle(tokenName,obj){
+    _syncSharedStyle(token,tokenName,obj){
         if(!obj.slayer.sharedStyle){
             //return this.logError('No shared style for some of "'+tokenName+'" styles')
             var SharedStyle = require('sketch/dom').SharedStyle
@@ -306,6 +315,44 @@ class DSApp {
             obj.slayer.sharedStyle.style = obj.slayer.style
         }
         obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
+
+
+        this._addStyleTokenToSymbol(token,obj.slayer.sharedStyle)
+        
+
+        return true
+    }
+
+    _addStyleTokenToSymbol(token,sharedStyle){
+        // process all layers which are using this shared style
+        for(var layer of sharedStyle.getAllInstancesLayers()){
+            this._addTokenToSymbol(token,layer)
+        }
+    }
+
+    _addTokenToSymbol(token,slayer){
+
+        var nlayer = slayer.sketchObject.parentSymbol()
+        if(null==nlayer){
+            return false
+        }
+        const symbolLayer = Sketch.fromNative(nlayer)
+
+        //
+        var symbolInfo = null
+        if(symbolLayer.name in this.symbols){
+            symbolInfo = this.symbols[ symbolLayer.name ]
+        }else{
+            symbolInfo = {
+                tokens: {}
+            }
+            this.symbols[ symbolLayer.name ] = symbolInfo
+        }
+
+        for(var tokenName of Object.keys(token.__lessTokens)){
+            symbolInfo.tokens[tokenName] = true
+        }
+
         return true
     }
     
@@ -344,7 +391,7 @@ class DSApp {
             obj.slayer.style.fills = []
         }
 
-        return this._syncSharedStyle(tokenName,obj)        
+        return this._syncSharedStyle(token,tokenName,obj)        
     }
 
 
@@ -377,7 +424,7 @@ class DSApp {
         }
         obj.slayer.style.fills = [fill]
 
-        return this._syncSharedStyle(tokenName,obj)        
+        return this._syncSharedStyle(token,tokenName,obj)        
     }
  
     _applyFillGradientProcessColor(token,colorType){
@@ -410,7 +457,7 @@ class DSApp {
         else   
             obj.slayer.style.shadows = shadows
 
-        return this._syncSharedStyle(tokenName,obj)        
+        return this._syncSharedStyle(token,tokenName,obj)        
     }
 
     _applyShapeRadius(token, tokenName, obj) {
@@ -430,6 +477,7 @@ class DSApp {
             }
         }
 
+        this._addTokenToSymbol(token,obj.slayer)
         //return this._syncSharedStyle(tokenName,obj)        
         return true // we don't need to sync changes with shared style here
     } 
@@ -529,7 +577,7 @@ class DSApp {
         obj.slayer.style.borders = border?[border]:[]
 
 
-        return this._syncSharedStyle(tokenName,obj)
+        return this._syncSharedStyle(token,tokenName,obj)
     }
 
     _getObjTextData(obj){
@@ -616,7 +664,7 @@ class DSApp {
             obj.slayer.style.textTransform = transform
         }
     
-        return this._syncSharedStyle(tokenName,obj)
+        return this._syncSharedStyle(token,tokenName,obj)
 
     }
 
