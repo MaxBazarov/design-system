@@ -31,6 +31,9 @@ class DSApp {
         if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
         this.pathToSketchStylesJSON = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS)
         if(undefined==this.pathToSketchStylesJSON) this.pathToSketchStylesJSON = ''
+        this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
+
+        
     }
 
     // Tools
@@ -75,7 +78,8 @@ class DSApp {
 
         if( !this.loadLess()) return false        
         if( !this._applyLess() ) return false
-        this._saveSymbolTokens()
+
+        if(this.genSymbTokens) this._saveSymbolTokens()
 
         // show final message
         if(this.errors.length>0){
@@ -98,7 +102,7 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 150),"Apply")
+        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 180),"Apply")
 
         dialog.addPathInput({
             id:"pathToTokensLess",label:"Path to Design Tokens (LESS file)",labelSelect:"Select",
@@ -110,6 +114,7 @@ class DSApp {
             textValue:this.pathToSketchStylesJSON,inlineHint:'e.g. ~/Work/sketch-styles.json',
             width:550,askFilePath:true
         })
+        dialog.addCheckbox("genSymbTokens","Generate symbol token file",this.genSymbTokens)
 
 
         while(true){
@@ -120,7 +125,7 @@ class DSApp {
             if(""==this.pathToTokensLess) continue
             this.pathToSketchStylesJSON = dialog.views['pathToSketchStylesJSON'].stringValue()+""
             if(""==this.pathToSketchStylesJSON) continue
-
+            this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
 
             break
         }
@@ -129,6 +134,7 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS, this.pathToSketchStylesJSON)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
     
 
         return true
@@ -649,22 +655,64 @@ class DSApp {
         }
         //// SET FONT WEIGHT
         if(undefined!=fontWeight){
-            var weights = {
-                'extra-light':3,
-                'light':4,                
-                'regular':5,
-                'medium':6,
-                'semi-bold':8,
-                'semibold':8,
-                'bold':9
+            var weightKey = "label"
+            const weights = [
+                {
+                    label:  'extra-light',
+                    sketch: 3,
+                    css:    200
+                },
+                {
+                    label: 'light',
+                    sketch: 4,
+                    css:    300
+                },                
+                {
+                    label:  'regular',
+                    sketch: 5,
+                    css:    400
+                },
+                {
+                    label:  'medium',   
+                    sketch: 6,
+                    css:    500
+                },
+                {
+                    label:  'semi-bold',
+                    sketch: 8,
+                    css:    600
+                },
+                {
+                    label:  'semibold',
+                    sketch: 8,
+                    css:    600
+                },
+                {   
+                    label:  'bold',
+                    sketch: 9,
+                    css:    700
+                }
+            ]
+
+            // for numeric weight we support it uses css format
+            if(!isNaN(fontWeight)){
+                weightKey = 'css'
+                fontWeight = fontWeight * 1
             }
 
-            if(undefined==weights[fontWeight]){
+            var finalWeight = undefined
+            for(var w of weights){
+                if(w[weightKey] == fontWeight){
+                    finalWeight = w.sketch
+                    break
+                }
+            }
+            if(undefined==finalWeight){
+                log("weightKey="+weightKey+"  fontWeight="+fontWeight)
                 return this.logError('Wrong font weight for token: '+tokenName)
             }
             
-            //log('obj.slayer.style.fontWeight='+obj.slayer.style.fontWeight)
-            obj.slayer.style.fontWeight = weights[fontWeight]
+            obj.slayer.style.fontWeight = finalWeight
         }
 
          // SET TEXT COLOR

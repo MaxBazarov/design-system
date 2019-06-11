@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 2.0.0 (11 Jun 2019)
+- Added support for numeric css font weight value (200/300/400/500/600/700)
+
 ##  Version 1.10.1 (5 Jun 2019)
 - Added "semi-bold" font weight (nickname of "semibold")
 
