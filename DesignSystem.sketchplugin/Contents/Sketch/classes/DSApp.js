@@ -17,7 +17,9 @@ class DSApp {
         this.UI = require('sketch/ui')
         
         this.pages = {}
-        this.symbols = {}
+        this.elements = {
+            styles:     {}
+        }
 
         this.less = undefined
     
@@ -79,7 +81,7 @@ class DSApp {
         if( !this.loadLess()) return false        
         if( !this._applyLess() ) return false
 
-        if(this.genSymbTokens) this._saveSymbolTokens()
+        if(this.genSymbTokens) this._saveElements()
 
         // show final message
         if(this.errors.length>0){
@@ -94,9 +96,9 @@ class DSApp {
     // Internal
 
 
-    _saveSymbolTokens(){
+    _saveElements(){
         const pathToRules = this.pathToSketchStylesJSON.substring(0, this.pathToSketchStylesJSON.lastIndexOf("/")) + "/" + Constants.SYMBOLTOKENFILE_NAME        
-        const json = JSON.stringify(this.symbols,null,4)
+        const json = JSON.stringify(this.elements,null,4)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -114,7 +116,7 @@ class DSApp {
             textValue:this.pathToSketchStylesJSON,inlineHint:'e.g. ~/Work/sketch-styles.json',
             width:550,askFilePath:true
         })
-        dialog.addCheckbox("genSymbTokens","Generate symbol token file",this.genSymbTokens)
+        dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
 
 
         while(true){
@@ -329,17 +331,41 @@ class DSApp {
         obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
 
 
-        this._addStyleTokenToSymbol(token,obj.slayer.sharedStyle)
+        this._addStyleTokenToSymbol(token,obj.slayer)
         
 
         return true
     }
 
-    _addStyleTokenToSymbol(token,sharedStyle){
+    _addStyleTokenToSymbol(token,styleSLayer){
+        const sharedStyle = styleSLayer.sharedStyle
         // process all layers which are using this shared style
         for(var layer of sharedStyle.getAllInstancesLayers()){
             this._addTokenToSymbol(token,layer)
         }
+        // save shared style
+        this._addTokenToStyle(token,styleSLayer)
+    }  
+
+
+    _addTokenToStyle(token,styleSLayer){
+        const sharedStyle = styleSLayer.sharedStyle
+        
+        var styleInfo = null
+        if (sharedStyle.name in this.elements.styles){        
+            styleInfo = this.elements.styles[sharedStyle.name]
+        }else{
+            styleInfo = {
+                tokens: {}
+            }
+            this.elements.styles[sharedStyle.name] = styleInfo
+        }
+
+        for(var tokenName of Object.keys(token.__lessTokens)){
+            styleInfo.tokens[tokenName] = true
+        }
+
+
     }
 
     _addTokenToSymbol(token,slayer){
@@ -352,13 +378,13 @@ class DSApp {
 
         //
         var symbolInfo = null
-        if(symbolLayer.name in this.symbols){
-            symbolInfo = this.symbols[ symbolLayer.name ]
+        if(symbolLayer.name in this.elements){
+            symbolInfo = this.elements[ symbolLayer.name ]
         }else{
             symbolInfo = {
                 layers:{}             
             }
-            this.symbols[ symbolLayer.name ] = symbolInfo
+            this.elements[ symbolLayer.name ] = symbolInfo
         }
 
         for(var tokenName of Object.keys(token.__lessTokens)){
