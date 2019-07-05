@@ -507,24 +507,31 @@ class DSApp {
         return this._syncSharedStyle(token,tokenName,obj)        
     }
 
-    _applyShapeRadius(token, tokenName, obj) {
-        
-        var radius = token['shape-radius']
+    _applyShapeRadius(token, tokenName, styleObj) {
 
-        if(radius!=""){               
-            const points =  obj.slayer.points    
-            if(Array.isArray(radius)){                
-                for (let x=0; x < points.length; ++x ) {
-                    points[x].cornerRadius =  parseFloat(radius[x])
+        var radius = token['shape-radius']
+        const layers = styleObj.slayer.sharedStyle.getAllInstancesLayers()
+
+        for(var l of layers){
+            this.log(' _applyShapeRadius() process layer: '+l.name + (l.parent?(" parent: "+l.parent.name):""))
+
+            if(radius!=""){               
+                const points =  l.points    
+                if(Array.isArray(radius)){                
+                    for (let x=0; x < points.length; ++x ) {
+                        points[x].cornerRadius =  parseFloat(radius[x])
+                    }
+                }else{
+                    for (let x=0; x < points.length; ++x ) {
+                        points[x].cornerRadius =  parseFloat(radius)
+                    }
                 }
-            }else{
-                for (let x=0; x < points.length; ++x ) {
-                    points[x].cornerRadius =  parseFloat(radius)
-                }
-            }
+            }    
+            this._addTokenToSymbol(token,l)
         }
 
-        this._addTokenToSymbol(token,obj.slayer)
+        
+        //this._addTokenToSymbol(token,obj.slayer)
         //return this._syncSharedStyle(tokenName,obj)        
         return true // we don't need to sync changes with shared style here
     } 

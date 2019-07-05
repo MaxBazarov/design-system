@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 2.1.0 (5 Jul 2019)
+- Now "shape-radius" rule can be applied to artboard layers, not only to symbol layers
+
 ##  Version 2.0.0 (11 Jun 2019)
 - Added support for numeric css font weight value (200/300/400/500/600/700)
 

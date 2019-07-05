@@ -10,15 +10,6 @@
                                 "Styles/Controls/Buttons/Submit/Cancel/Text"
         ]
     },
-    "@btn-submit-border":{
-        "description":          "Common border styles for all submit buttons, REQUIRE PATH TO SYMBOL INTERNAL LAYERS, NOT STYLES",
-        "shape-radius":         "@radius-medium",        
-        "sketch": [
-                                "Controls///Controls / Buttons / Submit / Ok///Back",
-                                "Controls///Controls / Buttons / Submit / Cancel///Back",
-                                "Controls///Controls / Buttons / Submit / Disabled///Group/Back"
-        ]
-    },
     "@btn-submit-ok-text":{
         "text-color":            "#ffffff",
         "sketch":                "Styles/Controls/Buttons/Submit/Ok/Text"
@@ -32,6 +23,7 @@
         "border-color":          "",
         "border-width":          "",
         "shadow":                "0 10px 20px 2 #00000033",
+        "shape-radius":         "@radius-medium",       
         "sketch":                "Styles/Controls/Buttons/Submit/Ok/Back" 
     },
     "@btn-submit-cancel-back":{
@@ -39,6 +31,7 @@
         "fill-color-opacity":    "0.0",
         "border-color":          "@color-secondary",
         "border-width":          "2",
+        "shape-radius":         "@radius-medium",       
         "sketch":                "Styles/Controls/Buttons/Submit/Cancel/Back" 
     },
     "@btn-submit-disabled-text":{
@@ -49,6 +42,7 @@
     "@btn-submit-disabled-back":{
         "fill-color":            "#B0AFB1",
         "fill-color-opacity":    "63%",
+        "shape-radius":         "@radius-medium",       
         "sketch":                "Styles/Controls/Buttons/Submit/Disabled/Back"
     },
 
