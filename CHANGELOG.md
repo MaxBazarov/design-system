@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 2.1.1 (10 Jul 2019)
+- Striped whitespaces in currentskin-symboltokens.json
+
 ##  Version 2.1.0 (5 Jul 2019)
 - Now "shape-radius" rule can be applied to artboard layers, not only to symbol layers
 

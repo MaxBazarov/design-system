@@ -98,7 +98,7 @@ class DSApp {
 
     _saveElements(){
         const pathToRules = this.pathToSketchStylesJSON.substring(0, this.pathToSketchStylesJSON.lastIndexOf("/")) + "/" + Constants.SYMBOLTOKENFILE_NAME        
-        const json = JSON.stringify(this.elements,null,4)
+        const json = JSON.stringify(this.elements,null,null)
         Utils.writeToFile(json, pathToRules)
     }
 
