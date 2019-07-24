@@ -8,11 +8,13 @@ var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
+const path = require('path');
 
 
 class DSApp {
     constructor(context) {
-        this.doc = context.document
+        this.nDoc = context.document
+        this.jDoc = Sketch.fromNative(context.document)
         this.context = context
         this.UI = require('sketch/ui')
         
@@ -97,8 +99,13 @@ class DSApp {
 
 
     _saveElements(){
+        /*
         const pathToRules = this.pathToSketchStylesJSON.substring(0, this.pathToSketchStylesJSON.lastIndexOf("/"))
              + "/" + this.doc.name + "." + Constants.SYMBOLTOKENFILE_POSTFIX
+        */
+        const pathDetails = path.parse(this.jDoc.path)
+        const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
+        log(pathToRules)
         const json = JSON.stringify(this.elements,null,null)
         Utils.writeToFile(json, pathToRules)
     }
@@ -324,7 +331,7 @@ class DSApp {
             obj.slayer.sharedStyle = SharedStyle.fromStyle({
                 name:       tokenName,
                 style:      obj.slayer.style,
-                document:   this.doc
+                document:   this.ocDoc
               })
         }else{
             obj.slayer.sharedStyle.style = obj.slayer.style

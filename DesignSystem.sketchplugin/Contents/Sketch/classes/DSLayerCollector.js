@@ -10,7 +10,7 @@ class DSLayerCollector {
     collectPages(){
         let pages = {}
 
-        app.doc.pages().forEach(function (nPage) {
+        app.nDoc.pages().forEach(function (nPage) {
             const page = {
                 name: nPage.name(),
                 nlayer: nPage,
