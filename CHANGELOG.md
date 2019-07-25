@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 2.2.0 (25 Jul 2019)
+- refactored Element Inspector data generation 
+
 ##  Version 2.1.1 (10 Jul 2019)
 - Striped whitespaces in currentskin-symboltokens.json
 
