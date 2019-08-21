@@ -1,5 +1,8 @@
 # Change Log
 
+## Version 3.0.0 (21 Aug 2019)
+- Moved to https://github.com/ingrammicro/puzzle-tokens
+
 ##  Version 2.2.0 (25 Jul 2019)
 - refactored Element Inspector data generation 
 
